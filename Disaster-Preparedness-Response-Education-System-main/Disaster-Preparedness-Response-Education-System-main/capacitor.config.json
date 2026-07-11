@@ -1,0 +1,12 @@
+{
+  "appId": "com.dpres.app",
+  "appName": "DPRES",
+  "webDir": "public",
+  "plugins": {
+    "SpeechRecognition": {
+      "language": "hi-IN,en-IN",
+      "maxResults": 5,
+      "promptForPermissions": true
+    }
+  }
+}

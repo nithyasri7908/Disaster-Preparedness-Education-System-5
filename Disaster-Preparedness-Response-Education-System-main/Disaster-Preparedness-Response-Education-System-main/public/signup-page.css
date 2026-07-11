@@ -1,0 +1,255 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+}
+
+/* Container */
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Column */
+.left-column {
+    flex: 0 0 40%;
+    background: linear-gradient(135deg, #6a0dad 0%, #7d4ac7 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: white;
+    text-align: center;
+}
+
+.illustration {
+    margin-bottom: 2rem;
+}
+
+.icon {
+    font-size: 6rem;
+    margin-bottom: 1rem;
+}
+
+.left-column h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.left-column p {
+    font-size: 1.2rem;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+/* Right Column */
+.right-column {
+    flex: 0 0 60%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-container h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #333;
+}
+
+/* Form */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #7d4ac7;
+    box-shadow: 0 0 0 2px rgba(125, 74, 199, 0.1);
+}
+
+.checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.checkbox input[type="checkbox"] {
+    width: auto;
+    margin-top: 0.2rem;
+}
+
+.checkbox label {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+.checkbox a {
+    color: #7d4ac7;
+    text-decoration: none;
+}
+
+.checkbox a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #7d4ac7;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary:hover {
+    background: #6a0dad;
+}
+
+/* Divider */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ddd;
+}
+
+.divider span {
+    background: white;
+    padding: 0 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Social Login */
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-google,
+.btn-facebook {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #dadce0;
+}
+
+.btn-facebook:hover {
+    background: #f8f9fa;
+    border-color: #dadce0;
+}
+
+.btn-google .icon {
+    color: #ea4335;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.btn-facebook .icon {
+    color: #1877f2;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .left-column {
+        flex: none;
+        height: 40vh;
+        padding: 1rem;
+    }
+
+    .left-column h1 {
+        font-size: 2rem;
+    }
+
+    .left-column p {
+        font-size: 1rem;
+    }
+
+    .right-column {
+        flex: none;
+        height: 60vh;
+        padding: 1rem;
+    }
+
+    .form-container {
+        max-width: none;
+    }
+}

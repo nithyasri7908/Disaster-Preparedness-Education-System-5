@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Disaster Preparedness & Response Education System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="signup-page.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <div class="illustration">
+                <div class="icon">👨‍🎓🛡️</div>
+            </div>
+            <h1>WELCOME DPRES  </h1>
+            <p>Join us and learn to stay safe!</p>
+        </div>
+        <div class="right-column">
+            <div class="form-container">
+                <h2 id="formTitle">Create New Account</h2>
+                <form class="signup-form" id="authForm">
+                    <div class="form-group" id="nameGroup">
+                        <input type="text" id="fullName" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <div class="form-group" id="roleGroup" style="margin-top: 15px; margin-bottom: 15px;">
+                        <select id="userRole" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; background: white;">
+                            <option value="" disabled selected>Select Your Role</option>
+                            <option value="Student">Student / Public</option>
+                            <option value="Government">Government / First Responder (Police, Fire, Hospital)</option>
+                        </select>
+                    </div>
+                    <div class="form-group checkbox" id="termsGroup">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree with the <a href="#">Terms of Services</a> and <a href="#">Privacy Policy</a></label>
+                    </div>
+                    <button type="submit" class="btn-primary" id="submitBtn">Sign Up</button>
+                    
+                    <div style="text-align: center; margin-top: 10px;">
+                        <a href="#" id="toggleAuthMode" style="color: #7d4ac7; text-decoration: none; font-weight: 500;">Already have an account? Login here</a>
+                    </div>
+                </form>
+
+                <script>
+                    // Redirect if already logged in
+                    if (localStorage.getItem('userName') && localStorage.getItem('userEmail')) {
+                        window.location.href = 'index.html';
+                    }
+
+                    let isLoginMode = false;
+
+                    const authForm = document.getElementById('authForm');
+                    const formTitle = document.getElementById('formTitle');
+                    const submitBtn = document.getElementById('submitBtn');
+                    const toggleAuthMode = document.getElementById('toggleAuthMode');
+                    
+                    const nameGroup = document.getElementById('nameGroup');
+                    const roleGroup = document.getElementById('roleGroup');
+                    const termsGroup = document.getElementById('termsGroup');
+                    
+                    const fullName = document.getElementById('fullName');
+                    const userRole = document.getElementById('userRole');
+                    const terms = document.getElementById('terms');
+
+                    toggleAuthMode.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        isLoginMode = !isLoginMode;
+                        
+                        if (isLoginMode) {
+                            formTitle.textContent = 'Welcome Back';
+                            submitBtn.textContent = 'Login';
+                            toggleAuthMode.textContent = "Don't have an account? Sign up here";
+                            
+                            // Hide signup only fields
+                            nameGroup.style.display = 'none';
+                            roleGroup.style.display = 'none';
+                            termsGroup.style.display = 'none';
+                            
+                            // Remove required attribute from hidden fields
+                            fullName.removeAttribute('required');
+                            userRole.removeAttribute('required');
+                            terms.removeAttribute('required');
+                        } else {
+                            formTitle.textContent = 'Create New Account';
+                            submitBtn.textContent = 'Sign Up';
+                            toggleAuthMode.textContent = 'Already have an account? Login here';
+                            
+                            // Show signup fields
+                            nameGroup.style.display = 'block';
+                            roleGroup.style.display = 'block';
+                            termsGroup.style.display = 'flex';
+                            
+                            // Add required attribute back
+                            fullName.setAttribute('required', 'required');
+                            userRole.setAttribute('required', 'required');
+                            terms.setAttribute('required', 'required');
+                        }
+                    });
+
+                    authForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const emailValue = document.getElementById('email').value.trim();
+                        const passwordValue = document.getElementById('password').value;
+                        
+                        // Get registered users or initialize empty array
+                        let users = JSON.parse(localStorage.getItem('dpres_users')) || [];
+
+                        // Generate a unique token for this session
+                        const newToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+                        if (isLoginMode) {
+                            // Handle Login
+                            let userIndex = users.findIndex(u => u.email === emailValue && u.password === passwordValue);
+                            if (userIndex !== -1) {
+                                // Login success
+                                // Update session token for the user in our "database"
+                                users[userIndex].sessionToken = newToken;
+                                localStorage.setItem('dpres_users', JSON.stringify(users));
+
+                                localStorage.setItem('userRole', users[userIndex].role);
+                                localStorage.setItem('userName', users[userIndex].name);
+                                localStorage.setItem('userEmail', users[userIndex].email);
+                                localStorage.setItem('sessionToken', newToken);
+
+                                alert('Welcome back, ' + users[userIndex].name + '!');
+                                window.location.href = 'index.html';
+                            } else {
+                                // Login failed
+                                alert('Invalid email or password. Please try again.');
+                            }
+                        } else {
+                            // Handle Sign Up
+                            const existingUser = users.find(u => u.email === emailValue);
+                            if (existingUser) {
+                                alert('An account with this email already exists. Please login instead.');
+                                return;
+                            }
+
+                            const nameValue = fullName.value.trim();
+                            const roleValue = userRole.value;
+
+                            const newUser = {
+                                name: nameValue,
+                                email: emailValue,
+                                password: passwordValue,
+                                role: roleValue,
+                                sessionToken: newToken
+                            };
+
+                            users.push(newUser);
+                            localStorage.setItem('dpres_users', JSON.stringify(users));
+
+                            // Auto login after sign up
+                            localStorage.setItem('userRole', roleValue);
+                            localStorage.setItem('userName', nameValue);
+                            localStorage.setItem('userEmail', emailValue);
+                            localStorage.setItem('sessionToken', newToken);
+                            
+                            alert('Account successfully created as ' + roleValue + '! Redirecting...');
+                            window.location.href = 'index.html';
+                        }
+                    });
+                </script>
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                <div class="social-login">
+                    <button class="btn-google">
+                        <span class="icon">G</span>
+                        Continue with Google
+                    </button>
+                    <button class="btn-facebook">
+                        <span class="icon">f</span>
+                        Continue with Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

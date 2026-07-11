@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPRES - Disaster Preparedness & Response Education System</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="signin.css" />
+    <link rel="stylesheet" href="login.css" />
+    
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYy-iVDuFlEL_zQ-vy1DBsZNP4CWFSxNM",
+            authDomain: "disaster-preparedness-c0969.firebaseapp.com",
+            projectId: "disaster-preparedness-c0969",
+            storageBucket: "disaster-preparedness-c0969.firebasestorage.app",
+            messagingSenderId: "11672612134",
+            appId: "1:11672612134:web:0988dbfeea867e6d8725e7",
+            measurementId: "G-H9VKXNFQR4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.firestore();
+    </script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">🏫 DPRES</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#simulation">Simulations</a></li>
+                <!-- <li><a href="#dashboard">Dashboard</a></li> -->
+                <!--<li><a href="gamified-experience.html">Gamified Experience</a></li>
+                <li><a href="emergency-drills.html">Emergency Drills</a></li>
+                <li><a href="real-time-alerts.html">Real-Time Alerts</a></li> -->
+                <li><a href="admin-dashboard.html">Admin Dashboard</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <span class="btn" id="loginBtn">Points: 0</span>
+            <span class="btn" id="profileBtn"
+                style="margin-left: 10px; background: #3498db; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                <img id="navProfilePic" src="https://via.placeholder.com/24?text=U"
+                    style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" />
+                Profile
+            </span>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Disaster Preparedness & Response Education System</h1>
+            <p>Empowering schools and colleges across India with comprehensive disaster management education, virtual
+                drills, and real-time emergency response tools.</p>
+            <div class="cta-buttons">
+                <!-- Removed Get Started button -->
+                <a href="#features" class="btn"
+                    style="background: rgba(255,255,255,0.2); border: 2px solid white;">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Comprehensive Disaster Education Platform</h2>
+            
+            <!-- Student Tracking Map Container -->
+            <div id="student-map-container" style="display: none; width: 100%; margin-top: 2rem;">
+                <h3 style="color: white; text-align: center; margin-bottom: 1rem;">🚨 Live Emergency Response Tracking</h3>
+                <div id="tracking-map" style="width: 100%; height: 500px; border-radius: 8px;"></div>
+                <div id="eta-info" style="color: white; text-align: center; margin-top: 10px; font-size: 18px; display: grid; gap: 8px;">
+                    <div id="police-eta">🚓 Police: Calculating...</div>
+                    <div id="ambulance-eta">🚑 Ambulance: Calculating...</div>
+                </div>
+            </div>
+            
+            <div class="features-grid">
+                <a href="learning-modules.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">📚</span>
+                    <h3 style="color: white;">Interactive Learning Modules</h3>
+                    <p style="color: white;">Region-specific disaster education with engaging content for earthquakes,
+                        floods, fires, and cyclones tailored to Indian geography.</p>
+                </a>
+                <a href="gamified-experience.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">🎮</span>
+                    <h3 style="color: white;">Gamified Experience</h3>
+                    <p style="color: white;">Points, badges, and leaderboards make disaster preparedness learning
+                        engaging and memorable for students of all ages.</p>
+                </a>
+                <a href="emergency-drills.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">🚨</span>
+                    <h3 style="color: white;">Emergency Drills</h3>
+                    <p style="color: white;">Conduct realistic disaster simulations without physical risks, training
+                        students and staff on proper evacuation procedures.</p>
+                </a>
+                <a href="real-time-alerts.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">📱</span>
+                    <h3 style="color: white;">Real-time Alerts</h3>
+                    <p style="color: white;">Instant notifications for weather warnings, local disasters, and emergency
+                        updates integrated with NDMA systems.</p>
+                </a>
+                <a href="admin-dashboard.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">📊</span>
+                    <h3 style="color: white;">Admin Dashboard</h3>
+                    <p style="color: white;">Track preparedness scores, drill participation, and generate compliance
+                        reports for educational authorities.</p>
+                </a>
+                <a href="emergency-contacts.html" class="feature-card"
+                    style="text-decoration: none; color: inherit; display: block;">
+                    <span class="feature-icon">📞</span>
+                    <h3 style="color: white;">Emergency Contacts</h3>
+                    <p style="color: white;">Quick access to local emergency services, disaster response teams, and
+                        school emergency contacts.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Demo -->
+    <section class="dashboard" id="dashboard">
+        <div class="container">
+            <div class="dashboard-content">
+                <div class="dashboard-info">
+                    <h2>Real-time Preparedness Dashboard</h2>
+                    <p>Monitor your institution's disaster readiness with comprehensive analytics, participation
+                        tracking, and compliance reporting. Get insights into drill effectiveness, student engagement,
+                        and areas for improvement.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" class="btn">View Full Dashboard</a>
+                    </div>
+                </div>
+                <div class="dashboard-demo">
+                    <h3 style="margin-bottom: 1rem;">School Preparedness Overview</h3>
+                    <div class="metric-card">
+                        <div>
+                            <strong>Overall Readiness Score</strong>
+                            <div>Gwalior Public School</div>
+                        </div>
+                        <div style="font-size: 2rem;">92%</div>
+                    </div>
+                    <div class="metric-card" style="background: linear-gradient(45deg, #4ecdc4, #44a08d);">
+                        <div>
+                            <strong>Students Trained</strong>
+                            <div>This Month</div>
+                        </div>
+                        <div style="font-size: 2rem;">1,856</div>
+                    </div>
+                    <div class="metric-card" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                        <div>
+                            <strong>Drill Completion</strong>
+                            <div>Virtual & Physical</div>
+                        </div>
+                        <div style="font-size: 2rem;">98%</div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <strong>Earthquake Preparedness Progress</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%;"></div>
+                        </div>
+                        <strong>Fire Safety Progress</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%;"></div>
+                        </div>
+                        <strong>Flood Response Progress</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulation Center -->
+    <section class="simulation" id="simulation">
+        <div class="container">
+            <h2 class="section-title">Virtual Disaster Simulations</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">Experience realistic disaster scenarios in a safe,
+                controlled environment</p>
+            <div class="simulation-grid">
+                <div class="simulation-card" onclick="startSimulation('earthquake')">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🏗️</span>
+                    <h3>Earthquake Response</h3>
+                    <p>Learn Drop, Cover, and Hold techniques. Practice evacuation routes and post-earthquake safety
+                        protocols.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 15-20 minutes<br>
+                        <strong>Participants:</strong> Up to 500
+                    </div>
+                </div>
+                <div class="simulation-card" onclick="startSimulation('fire')">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🔥</span>
+                    <h3>Fire Emergency</h3>
+                    <p>Master fire evacuation procedures, use of fire extinguishers, and smoke safety protocols.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 10-15 minutes<br>
+                        <strong>Participants:</strong> Up to 300
+                    </div>
+                </div>
+                <div class="simulation-card" onclick="startSimulation('flood')">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🌊</span>
+                    <h3>Flood Response</h3>
+                    <p>Learn flood safety measures, evacuation to higher ground, and water emergency protocols.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 20-25 minutes<br>
+                        <strong>Participants:</strong> Up to 400
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alert System -->
+    <section class="alert-system">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Live Alert System</h2>
+            <p style="text-align: center; margin-bottom: 2rem; opacity: 0.9;">Real-time disaster alerts and emergency
+                notifications for your region</p>
+            <div class="alert-demo">
+                <h3 style="margin-bottom: 1rem;">Current Alerts - Gwalior Region</h3>
+                <div class="alert-item">
+                    <div>
+                        <strong>🔴 Heavy Rainfall Alert</strong>
+                        <div>Gwalior & Surrounding Areas - Next 48 hours</div>
+                        <small>IMD Weather Warning - Issued 2 hours ago</small>
+                    </div>
+                    <button class="btn" style="padding: 5px 15px;">Details</button>
+                </div>
+                <div class="alert-item warning">
+                    <div>
+                        <strong>🟡 Flood Watch</strong>
+                        <div>Low-lying areas in Gwalior district</div>
+                        <small>State Disaster Management - Issued 4 hours ago</small>
+                    </div>
+                    <button class="btn" style="padding: 5px 15px;">Details</button>
+                </div>
+                <div class="alert-item info">
+                    <div>
+                        <strong>🔵 Emergency Drill Reminder</strong>
+                        <div>Monthly fire drill scheduled for tomorrow</div>
+                        <small>School Administration - Issued 1 day ago</small>
+                    </div>
+                    <button class="btn" style="padding: 5px 15px;">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Directory -->
+    <section class="contacts" id="contact">
+        <div class="container">
+            <h2 class="section-title"><span class="blinking-emoji">🚨</span>Emergency Contact Directory<span class="blinking-emoji">🚨</span></h2>
+
+            <!-- Voice SOS Feature -->
+            <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 12px; padding: 20px; text-align: center; color: white; display: flex; align-items: center; justify-content: center; max-width: 600px; margin: 0 auto 30px auto; cursor: pointer; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4); border: 2px solid #ff7979; transition: transform 0.2s;"
+                class="voice-sos-container" id="voiceSosBtn">
+                <span style="font-size: 2.5rem; margin-right: 15px;">🎤</span>
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; font-size: 1.5rem; letter-spacing: 0.5px;">Smart Voice Command</h3>
+                    <small style="opacity: 0.9; font-size: 1rem;">Tap & Say "Call Police", "Fire", or
+                        "Ambulance"</small>
+                </div>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">🚨</div>
+                    <h3>Emergency Services</h3>
+                    <p style="color: #ff4d4f;"><strong>Police:</strong> 112</p>
+                    <p><strong>Fire:</strong> 101</p>
+                    <p><strong>Ambulance:</strong> 108</p>
+                    <p><strong>Disaster Helpline:</strong> 1078</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">🏥</div>
+                    <h3>Medical Emergency</h3>
+                    <p style="color: #ff4d4f;"><strong>Nearest Hospital:</strong><br>City General Hospital</p>
+                    <p style="color: #ff4d4f;"><strong>Phone:</strong> +91-22-2567-8900</p>
+                    <!-- <p><strong>Distance:</strong> 2.3 km</p> -->
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">🏫</div>
+                    <h3>School Emergency Team</h3>
+                    <p style="color: #ff4d4f;"><strong>Principal:</strong> +91-98765-43210</p>
+                    <p style="color: #ff4d4f;"><strong>Safety Officer:</strong> +91-98765-43211</p>
+                    <p style="color: #ff4d4f;"><strong>Security:</strong> +91-98765-43212</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">🌪️</div>
+                    <h3>Disaster Management</h3>
+                    <p style="color: #ff4d4f;"><strong>State Control Room:</strong><br>+91-22-2202-0001</p>
+                    <p style="color: #ff4d4f;"><strong>NDMA Helpline:</strong> 1078</p>
+                    <p style="color: #ff4d4f;"><strong>Local Coordinator:</strong> +91-98765-43213</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DPRES Platform</h3>
+                    <a href="#">About Us</a>
+                    <a href="#">How It Works</a>
+                    <a href="#">Success Stories</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-section">
+                    <h3>For Institutions</h3>
+                    <a href="#">School Registration</a>
+                    <a href="#">College Program</a>
+                    <a href="#">Training Modules</a>
+                    <a href="#">Certification</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <a href="https://www.mediafire.com/file/of02kzmk622s6ib/Disaster_Guidelines.pdf/file">Disaster
+                        Guidelines</a>
+                    <a href="#">Best Practices</a>
+                    <a href="#">Research Papers</a>
+                    <a href="#">Government Policies</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Technical Support</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Feedback</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #34495e; padding-top: 2rem; margin-top: 2rem;">
+                <p>&copy; 2025 Disaster Preparedness & Response Education System. Developed in partnership with NDMA and
+                    Ministry of Education, Government of India.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Making Indian schools and colleges
+                    disaster-ready through technology and education.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Voice SOS -->
+    <style>
+        .floating-voice-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6);
+            z-index: 1000;
+            animation: floatPulse 2s infinite alternate;
+            border: 3px solid #ff7979;
+            transition: transform 0.3s;
+        }
+
+        .floating-voice-btn:hover {
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        .floating-voice-btn.listening {
+            animation: floatPulseFast 0.5s infinite alternate;
+            background: linear-gradient(135deg, #f39c12, #d35400);
+            border-color: #f1c40f;
+        }
+
+        @keyframes floatPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+                transform: scale(1);
+            }
+
+            100% {
+                box-shadow: 0 0 0 15px rgba(231, 76, 60, 0);
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes floatPulseFast {
+            0% {
+                box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.8);
+                transform: scale(1.05);
+            }
+
+            100% {
+                box-shadow: 0 0 0 20px rgba(243, 156, 18, 0);
+                transform: scale(1.1);
+            }
+        }
+
+        .blinking-emoji {
+            display: inline-block;
+            color: #ff4d4f;
+            text-shadow: 0 0 8px rgba(255, 77, 79, 0.8);
+            animation: blinkSides 1.2s infinite ease-in-out;
+        }
+
+        @keyframes blinkSides {
+            0%, 100% {
+                opacity: 1;
+                transform: translateX(0);
+                text-shadow: 0 0 18px rgba(255, 77, 79, 0.95), 0 0 40px rgba(255, 77, 79, 0.6);
+            }
+            50% {
+                opacity: 0.2;
+                transform: translateX(6px);
+                text-shadow: 0 0 6px rgba(255, 77, 79, 0.4);
+            }
+        }
+
+        .animated-sos-heading {
+            color: #ffdd57;
+            display: inline-block;
+            text-shadow: 0 0 14px rgba(255, 221, 87, 0.9);
+            animation: sosSlide 3s infinite ease-in-out;
+        }
+
+        @keyframes sosSlide {
+            0%, 100% {
+                transform: translateX(18px);
+            }
+            50% {
+                transform: translateX(-18px);
+            }
+        }
+
+        /* Voice Command Overlay Modal */
+        #voiceOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+    </style>
+    <div id="floatingVoiceBtn" class="floating-voice-btn" title="Voice Emergency Command">
+        🎤
+    </div>
+    <div id="voiceOverlay">
+        <div id="voiceOverlayIcon" style="font-size: 80px; margin-bottom: 20px;">🎤</div>
+        <h2 id="voiceOverlayStatus">Listening...</h2>
+        <p id="voiceOverlayHint" style="font-size: 1.2rem; color: #ccc; margin-top: 10px;">Say "Call Police",
+            "Ambulance", or "Fire Brigade"<br><small style="font-size:14px; color:#aaa">(Or "Firebiket",
+                "Emergency")</small></p>
+    </div>
+
+    <!-- Profile Modal Structure -->
+    <div id="profileOverlay" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center;">
+        <div class="modal-content"
+            style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; color: #333; position: relative;">
+            <span id="closeProfileBtn"
+                style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer;">&times;</span>
+            <h2 id="profileTitle" style="margin-bottom: 20px; color: #2c3e50;">User Profile</h2>
+
+            <div id="userProfilePicSection" style="display: none; text-align: center; margin-bottom: 20px;">
+                <img id="profileImagePreview" src="https://via.placeholder.com/100?text=U"
+                    style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db; margin-bottom: 10px;" />
+                <div>
+                    <label for="profileImageInput"
+                        style="cursor: pointer; color: #3498db; font-size: 14px; text-decoration: underline;">Change
+                        Photo</label>
+                    <input type="file" id="profileImageInput" accept="image/*" style="display: none;" />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name</label>
+                <input type="text" id="profName"
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" disabled />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+                <input type="email" id="profEmail"
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" disabled />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number</label>
+                <input type="tel" id="profPhone" placeholder="Enter Phone Number"
+                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" />
+            </div>
+
+            <!-- Student Only Fields -->
+            <div id="studentProfileFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">College / School Name</label>
+                    <input type="text" id="profCollege" placeholder="Enter College/School Name"
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Parent/Guardian Full
+                        Details</label>
+                    <textarea id="profParentDetails" rows="3" placeholder="Name, Phone Number, Address..."
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"></textarea>
+                </div>
+            </div>
+
+            <!-- Government Only Fields -->
+            <div id="govProfileFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Department /
+                        Designation</label>
+                    <input type="text" id="profDepartment" placeholder="e.g. Traffic Police, Fire Chief..."
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" />
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="saveProfileBtn" class="btn primary"
+                    style="flex: 2; padding: 12px; font-size: 16px; background: #2ecc71; border: none; color: white; cursor: pointer; border-radius: 5px;">Save
+                    Profile</button>
+                <button id="logoutBtn" class="btn"
+                    style="flex: 1; padding: 12px; font-size: 16px; background: #e74c3c; border: none; color: white; cursor: pointer; border-radius: 5px;">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
+    <!-- Video Modal for Simulations -->
+    <div id="video-modal" class="modal" style="display: none;">
+        <div class="modal-content video-modal-content">
+            <span id="close-video-modal" class="close" style="position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; color: white;">&times;</span>
+            <h2 id="video-modal-title" style="color: white; text-align: center; margin-bottom: 20px;">Disaster Simulation Video</h2>
+            <div id="video-container" style="width: 100%; height: 400px;">
+                <iframe id="simulation-video" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Tracking Map Modal -->
+    <div id="student-tracking-map-modal" class="modal" style="display: none;">
+        <div class="modal-content map-modal-content">
+            <span id="close-map-modal" class="close" style="position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; color: white;">&times;</span>
+            <h2 style="color: white; text-align: center; margin-bottom: 20px;">Live Emergency Response Tracking</h2>
+            <div id="tracking-map-modal" style="width: 100%; height: 500px; border-radius: 8px;"></div>
+            <div id="eta-info-modal" style="color: white; text-align: center; margin-top: 10px; font-size: 18px;">
+                <div id="police-eta-modal">🚓 Police: Calculating...</div>
+                <div id="ambulance-eta-modal">🚑 Ambulance: Calculating...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Action Panel Modal -->
+    <div id="emergency-action-modal" class="modal" style="display: none;">
+        <div class="modal-content emergency-modal-content">
+            <span id="close-emergency-modal" class="close" style="position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; color: white;">&times;</span>
+            <h2 class="animated-sos-heading" style="text-align: center; margin-bottom: 20px;">Emergency SOS - Voice & Text</h2>
+            <p style="color: #ff6b6b; text-align: center; margin-bottom: 20px;">Record a voice message or send text SOS to emergency services.</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button id="voice-record-btn" class="btn" style="background: #3498db; padding: 15px; font-size: 18px;">🎤 Record Voice Message</button>
+                <button id="text-sos-btn" class="btn" style="background: #e74c3c; padding: 15px; font-size: 18px;">📝 Send Text SOS</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Progress bar animation on scroll
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progressBars = entry.target.querySelectorAll('.progress-fill');
+                    progressBars.forEach(bar => {
+                        bar.style.width = bar.style.width || '0%';
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.dashboard-demo').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close video modal
+        document.getElementById('close-video-modal').addEventListener('click', () => {
+            document.getElementById('video-modal').style.display = 'none';
+            document.getElementById('simulation-video').src = '';
+        });
+
+        // Close map modal
+        // document.getElementById('close-map-modal').addEventListener('click', () => {
+        //     document.getElementById('student-tracking-map-modal').style.display = 'none';
+        // });
+
+        // Close emergency modal
+        document.getElementById('close-emergency-modal').addEventListener('click', () => {
+            document.getElementById('emergency-action-modal').style.display = 'none';
+        });
+
+        // Emergency Action Panel
+        function showEmergencyActionPanel() {
+            document.getElementById('emergency-action-modal').style.display = 'flex';
+        }
+
+        // Handle voice record button
+        document.getElementById('voice-record-btn').addEventListener('click', () => {
+            document.getElementById('emergency-action-modal').style.display = 'none';
+            // Trigger voice recording and SOS sending
+            // This will be handled by modifying sos-button.js
+            if (typeof window.triggerVoiceSOS === 'function') {
+                window.triggerVoiceSOS();
+            } else {
+                alert('Voice SOS functionality not available');
+            }
+        });
+
+        // Handle text SOS button
+        document.getElementById('text-sos-btn').addEventListener('click', () => {
+            document.getElementById('emergency-action-modal').style.display = 'none';
+            // Trigger text SOS modal
+            if (typeof window.triggerTextSOS === 'function') {
+                window.triggerTextSOS();
+            } else {
+                alert('Text SOS functionality not available');
+            }
+        });
+
+        // Simulation functions
+        function startSimulation(type) {
+            const videos = {
+                earthquake: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder - replace with actual educational video
+                fire: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+                flood: 'https://www.youtube.com/embed/dQw4w9WgXcQ' // Placeholder
+            };
+            const titles = {
+                earthquake: 'Earthquake Response Simulation',
+                fire: 'Fire Emergency Simulation',
+                flood: 'Flood Response Simulation'
+            };
+
+            document.getElementById('video-modal-title').textContent = titles[type];
+            document.getElementById('simulation-video').src = videos[type];
+            document.getElementById('video-modal').style.display = 'flex';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Simulate real-time alerts
+        function updateAlerts() {
+            const alertsContainer = document.querySelector('.alert-demo');
+            // This would connect to real NDMA/IMD APIs in production
+            console.log('Checking for new disaster alerts...');
+        }
+
+        // Auto-refresh alerts every 5 minutes
+        setInterval(updateAlerts, 300000);
+
+        // Feature card animations
+        const featureCards = document.querySelectorAll('.feature-card, .simulation-card, .contact-card');
+        featureCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate-in');
+        });
+
+        // Add CSS animation class
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-in {
+                animation: fadeInUp 0.6s ease forwards;
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize dashboard metrics with animation
+        function animateMetrics() {
+            const metrics = document.querySelectorAll('.metric-card');
+            metrics.forEach((metric, index) => {
+                setTimeout(() => {
+                    metric.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        metric.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            });
+        }
+
+        // Run metrics animation when dashboard is visible
+        const dashboardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateMetrics();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const dashboard = document.querySelector('.dashboard-demo');
+        if (dashboard) {
+            dashboardObserver.observe(dashboard);
+        }
+
+        // Emergency contact quick dial
+        function quickDial(number) {
+            if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+                window.location.href = `tel:${number}`;
+            } else {
+                alert(`Emergency Number: ${number}\n\nOn mobile devices, this would directly dial the number.`);
+            }
+        }
+
+        // Points management
+        function getPoints() {
+            const userName = localStorage.getItem('userName') || 'guest';
+            return parseInt(localStorage.getItem('userPoints_' + userName) || '0');
+        }
+
+        function setPoints(points) {
+            const userName = localStorage.getItem('userName') || 'guest';
+            localStorage.setItem('userPoints_' + userName, points.toString());
+            updatePointsDisplay();
+        }
+
+        function updatePointsDisplay() {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.textContent = `Points: ${getPoints()}`;
+            }
+        }
+
+        function awardDailyLoginPoints() {
+            const userName = localStorage.getItem('userName') || 'guest';
+            const userRole = localStorage.getItem('userRole') || 'Student';
+            if (userRole !== 'Student') return;
+
+            const today = new Date().toDateString();
+            const lastLoginKey = 'lastLoginDate_' + userName;
+            const lastLogin = localStorage.getItem(lastLoginKey);
+            if (lastLogin !== today) {
+                const currentPoints = getPoints();
+                setPoints(currentPoints + 10);
+                localStorage.setItem(lastLoginKey, today);
+                alert('Daily login bonus: +10 points!');
+            }
+        }
+
+        // Add click handlers to emergency numbers
+        document.addEventListener('DOMContentLoaded', function () {
+            const emergencyNumbers = document.querySelectorAll('.contact-card p');
+            emergencyNumbers.forEach(element => {
+                const text = element.textContent;
+                if (text.includes('100') || text.includes('101') || text.includes('108') || text.includes('1078')) {
+                    element.style.cursor = 'pointer';
+                    element.style.color = '#e74c3c';
+                    element.addEventListener('click', function () {
+                        const number = text.match(/\d+/)[0];
+                        quickDial(number);
+                    });
+                }
+            });
+
+            // Initialize points display
+            updatePointsDisplay();
+
+            // Add logout button handler
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('sessionToken');
+                    alert('You have been logged out.');
+                    window.location.replace('signup.html');
+                });
+            }
+        });
+
+        // PWA-like features simulation
+        function enableOfflineMode() {
+            console.log('Offline mode enabled - Critical emergency information cached');
+            // In a real implementation, this would cache essential emergency data
+        }
+
+        // Check network status
+        window.addEventListener('online', () => {
+            console.log('Network restored - Syncing latest disaster alerts');
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('Network unavailable - Using cached emergency data');
+            enableOfflineMode();
+        });
+
+        // Load modals dynamically
+        async function loadModals() {
+            const container = document.getElementById('modals-container');
+            try {
+                const loginResponse = await fetch('login-modal.html');
+                const loginHtml = await loginResponse.text();
+                container.innerHTML += loginHtml;
+
+                const registerResponse = await fetch('register-modal.html');
+                const registerHtml = await registerResponse.text();
+                container.innerHTML += registerHtml;
+            } catch (error) {
+                console.error('Error loading modals:', error);
+            }
+        }
+
+        // Load modals on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check URL parameters for login trigger
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === 'true') {
+                loadModals().then(() => {
+                    // Award daily login points
+                    awardDailyLoginPoints();
+                    // Clean up URL and history
+                    history.replaceState(null, null, 'index.html');
+                });
+            }
+            // Allow users to browse the main page without forced signup
+            // Signup will be triggered when they try to access protected features
+        });
+
+        // ROLE-BASED ACCESS CONTROL & AUTHENTICATION
+        document.addEventListener('DOMContentLoaded', function () {
+            // Unconditionally redirect unauthenticated users to login/signup page
+            if (!localStorage.getItem('userName')) {
+                window.location.replace('signup.html');
+                return;
+            }
+
+            // Monitor for concurrent logins (logout if logged in from another device/tab)
+            setInterval(() => {
+                const currentEmail = localStorage.getItem('userEmail');
+                const currentToken = localStorage.getItem('sessionToken');
+                if (currentEmail && currentToken) {
+                    const users = JSON.parse(localStorage.getItem('dpres_users')) || [];
+                    const user = users.find(u => u.email === currentEmail);
+                    if (user && user.sessionToken !== currentToken) {
+                        // Token mismatch!
+                        localStorage.removeItem('userRole');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('sessionToken');
+                        alert('Your account was logged in from another device. You have been automatically logged out.');
+                        window.location.replace('signup.html');
+                    }
+                }
+            }, 2000);
+
+            const userRole = localStorage.getItem('userRole') || 'Student'; // Default to Student
+
+            if (userRole === 'Student') {
+                awardDailyLoginPoints();
+            }
+
+            // Show Role in Navigation
+            const roleBadge = document.createElement('span');
+            roleBadge.className = 'btn';
+            roleBadge.style.background = userRole === 'Government' ? '#2ecc71' : '#3498db';
+            roleBadge.textContent = 'Role: ' + userRole;
+            roleBadge.style.marginRight = '10px';
+            const nav = document.querySelector('.nav');
+            if (nav && document.getElementById('loginBtn')) {
+                nav.insertBefore(roleBadge, document.getElementById('loginBtn'));
+            }
+
+            if (userRole === 'Student') {
+                // Hide Admin links in navbar
+                const adminLink = document.querySelector('a[href="admin-dashboard.html"]');
+                if (adminLink && adminLink.parentElement) {
+                    adminLink.parentElement.style.display = 'none';
+                }
+
+                // Hide feature cards that are not for students
+                const adminCard = document.querySelector('a[href="admin-dashboard.html"].feature-card');
+                if (adminCard) adminCard.style.display = 'none';
+
+                const realTimeCard = document.querySelector('a[href="real-time-alerts.html"].feature-card');
+                if (realTimeCard) realTimeCard.style.display = 'none';
+
+                // Hide full sections
+                const dashboardSection = document.getElementById('dashboard');
+                if (dashboardSection) dashboardSection.style.display = 'none';
+
+                // Show simulation section for students
+                // const simulationSection = document.getElementById('simulation');
+                // if (simulationSection) simulationSection.style.display = 'none';
+
+                const alertSection = document.querySelector('.alert-system');
+                if (alertSection) alertSection.style.display = 'none';
+
+                // Hide Emergency Contacts card from students
+                const emergencyContactsCard = document.querySelector('a[href="emergency-contacts.html"].feature-card');
+                if (emergencyContactsCard) emergencyContactsCard.style.display = 'none';
+
+                // Hide separate floating buttons for students, add unified SOS button
+                const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+                if (floatingVoiceBtn) floatingVoiceBtn.style.display = 'none';
+
+                // Add unified SOS button for students
+                const unifiedSosBtn = document.createElement('button');
+                unifiedSosBtn.id = 'unified-sos-button';
+                unifiedSosBtn.title = 'Emergency SOS - Voice & Text';
+                unifiedSosBtn.innerHTML = '🚨 SOS';
+                document.body.appendChild(unifiedSosBtn);
+
+                // Add click handler for unified button
+                unifiedSosBtn.addEventListener('click', () => {
+                    // Trigger the unified emergency action panel
+                    showEmergencyActionPanel();
+                });
+            } else if (userRole === 'Government') {
+                // Government user gets extra map link
+                const ul = document.querySelector('.nav-links');
+                if (ul) {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<a href="admin-sos-dashboard.html" style="color:#ff4757; font-weight:bold;">📍 Live Map</a>';
+                    ul.appendChild(li);
+                }
+
+                // Hide elements specific to Government
+                const navLinksToHide = ['#features', '#simulation', 'feedback.html', '#contact'];
+                navLinksToHide.forEach(href => {
+                    const link = document.querySelector(`.nav-links a[href="${href}"]`);
+                    if (link && link.parentElement) link.parentElement.style.display = 'none';
+                });
+
+                const pointsBtn = document.getElementById('loginBtn');
+                if (pointsBtn) pointsBtn.style.display = 'none';
+
+                const learnMoreBtn = document.querySelector('.cta-buttons a[href="#features"]');
+                if (learnMoreBtn) learnMoreBtn.style.display = 'none';
+
+                const floatingVoice = document.getElementById('floatingVoiceBtn');
+                if (floatingVoice) floatingVoice.style.display = 'none';
+
+                const voiceSos = document.getElementById('voiceSosBtn');
+                if (voiceSos) voiceSos.style.display = 'none';
+
+                const simulationSection = document.getElementById('simulation');
+                if (simulationSection) simulationSection.style.display = 'none';
+
+                const contactSection = document.getElementById('contact');
+                if (contactSection) contactSection.style.display = 'none';
+
+                const featureCardsToHide = [
+                    'learning-modules.html',
+                    'gamified-experience.html',
+                    'emergency-drills.html',
+                    'emergency-contacts.html'
+                ];
+                featureCardsToHide.forEach(href => {
+                    const card = document.querySelector(`a[href="${href}"].feature-card`);
+                    if (card) card.style.display = 'none';
+                });
+            }
+        });
+
+        // Profile Management Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileBtn = document.getElementById('profileBtn');
+            const profileOverlay = document.getElementById('profileOverlay');
+            const closeProfileBtn = document.getElementById('closeProfileBtn');
+            const saveProfileBtn = document.getElementById('saveProfileBtn');
+            const navProfilePic = document.getElementById('navProfilePic');
+
+            // Initial load of nav icon
+            const emailInit = localStorage.getItem('userEmail') || 'guest';
+            const initialPic = localStorage.getItem(`userPhoto_${emailInit}`);
+            if (initialPic) navProfilePic.src = initialPic;
+
+            // Fields
+            const profName = document.getElementById('profName');
+            const profEmail = document.getElementById('profEmail');
+            const profPhone = document.getElementById('profPhone');
+            const profCollege = document.getElementById('profCollege');
+            const profParentDetails = document.getElementById('profParentDetails');
+            const profDepartment = document.getElementById('profDepartment');
+            const profileImagePreview = document.getElementById('profileImagePreview');
+            const profileImageInput = document.getElementById('profileImageInput');
+
+            // Sections
+            const studentProfileFields = document.getElementById('studentProfileFields');
+            const govProfileFields = document.getElementById('govProfileFields');
+            const userProfilePicSection = document.getElementById('userProfilePicSection');
+
+            // Form toggle logic based on role
+            profileBtn.addEventListener('click', () => {
+                const role = localStorage.getItem('userRole') || 'Student';
+                const email = localStorage.getItem('userEmail') || 'guest';
+
+                // Load base info
+                profName.value = localStorage.getItem('userName') || '';
+                profEmail.value = email;
+                profPhone.value = localStorage.getItem(`userPhone_${email}`) || '';
+
+                // Show pic uploader for everyone
+                userProfilePicSection.style.display = 'block';
+                const savedPic = localStorage.getItem(`userPhoto_${email}`);
+                if (savedPic) profileImagePreview.src = savedPic;
+                else profileImagePreview.src = "https://img.icons8.com/?size=512&id=23240&format=png";
+
+                if (role === 'Student') {
+                    studentProfileFields.style.display = 'block';
+                    govProfileFields.style.display = 'none';
+
+                    profCollege.value = localStorage.getItem(`userCollege_${email}`) || '';
+                    profParentDetails.value = localStorage.getItem(`userParentDetails_${email}`) || '';
+                } else if (role === 'Government') {
+                    studentProfileFields.style.display = 'none';
+                    govProfileFields.style.display = 'block';
+
+                    profDepartment.value = localStorage.getItem(`userDepartment_${email}`) || '';
+                }
+
+                profileOverlay.style.display = 'flex';
+            });
+
+            closeProfileBtn.addEventListener('click', () => {
+                profileOverlay.style.display = 'none';
+            });
+
+            // Profile photo upload preview (Gov only)
+            profileImageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        profileImagePreview.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Save profile data to localStorage
+            saveProfileBtn.addEventListener('click', () => {
+                const role = localStorage.getItem('userRole') || 'Student';
+                const email = localStorage.getItem('userEmail') || 'guest';
+
+                // Save universally shared
+                localStorage.setItem(`userPhone_${email}`, profPhone.value.trim());
+                localStorage.setItem(`userPhoto_${email}`, profileImagePreview.src);
+                navProfilePic.src = profileImagePreview.src;
+
+                if (role === 'Student') {
+                    localStorage.setItem(`userCollege_${email}`, profCollege.value.trim());
+                    localStorage.setItem(`userParentDetails_${email}`, profParentDetails.value.trim());
+                } else if (role === 'Government') {
+                    localStorage.setItem(`userDepartment_${email}`, profDepartment.value.trim());
+                }
+
+                alert('Profile details saved successfully!');
+                profileOverlay.style.display = 'none';
+            });
+        });
+
+        // ==========================================
+        // BROADCAST & ACKNOWLEDGMENT RECEIVER LOGIC
+        // ==========================================
+        function checkGlobalSystems() {
+            const role = localStorage.getItem('userRole');
+            if (role !== 'Student') return;
+
+            // 1. Check Broadcasts
+            const broadcasts = JSON.parse(localStorage.getItem('broadcastAlerts') || '[]');
+            let broadcastBanner = document.getElementById('globalBroadcastBanner');
+            if (broadcasts.length > 0) {
+                const latestBroadcast = broadcasts[broadcasts.length - 1];
+                const bTimeObj = new Date(latestBroadcast.timestamp);
+                
+                // 30 minute expiry check
+                const ageInMinutes = (new Date() - bTimeObj) / (1000 * 60);
+                
+                // Check if user dismissed this exact broadcast
+                const dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissedBroadcasts') || '[]');
+                const isDismissed = dismissedBroadcasts.includes(latestBroadcast.timestamp);
+
+                if (ageInMinutes <= 30 && !isDismissed) {
+                    if (!broadcastBanner) {
+                        broadcastBanner = document.createElement('div');
+                        broadcastBanner.id = 'globalBroadcastBanner';
+                        broadcastBanner.style.cssText = 'background: #e74c3c; color: white; text-align: center; padding: 15px; font-weight: bold; font-size: 1.2rem; cursor: pointer; z-index:9000; position:relative;';
+                        document.body.insertBefore(broadcastBanner, document.body.firstChild);
+                    }
+                    const bTime = bTimeObj.toLocaleTimeString();
+                    broadcastBanner.style.display = 'block';
+                    broadcastBanner.innerHTML = `⚠️ PUBLIC EMERGENCY BROADCAST ⚠️<br/>[${bTime}] Type: ${latestBroadcast.type} | Target Range: ${latestBroadcast.range}<br/><small style="font-weight:normal;">(Click to dismiss)</small>`;
+                    broadcastBanner.onclick = () => {
+                        broadcastBanner.style.display = 'none';
+                        // Save dismissal
+                        dismissedBroadcasts.push(latestBroadcast.timestamp);
+                        localStorage.setItem('dismissedBroadcasts', JSON.stringify(dismissedBroadcasts));
+                    };
+                } else if (broadcastBanner) {
+                    broadcastBanner.style.display = 'none';
+                }
+            }
+
+            // 2. Check SOS Acknowledgment (Fallback to local if no db, but listen if db exists)
+            // The polling logic here handles backwards compatibility or strictly fallback setups.
+        }
+
+        let sosUnsubscribe = null;
+        function setupFirebaseSOSListener() {
+            const role = localStorage.getItem('userRole');
+            if (role !== 'Student') return;
+
+            const email = localStorage.getItem('userEmail') || 'guest';
+            if (window.db) {
+                try {
+                sosUnsubscribe = window.db.collection('live_sos_signals')
+                    .where('senderEmail', '==', email)
+                    .onSnapshot(snapshot => {
+                        snapshot.docChanges().forEach(change => {
+                            if (change.type === 'modified') {
+                                const data = change.doc.data();
+                                const id = change.doc.id;
+                                if (data.acknowledged && !sessionStorage.getItem('sosAckShown_' + id)) {
+                                    // Show tick
+                                    const ackBanner = document.createElement('div');
+                                    ackBanner.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background: #2ecc71; color: white; padding: 15px 30px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index:99999; font-weight:bold; font-size: 16px; border:2px solid white; display:flex; align-items:center; gap:10px;';
+                                    ackBanner.innerHTML = `<span style="font-size:24px;">✅</span><span>The Government Officer has received your message and verified your situation!</span>`;
+                                    document.body.appendChild(ackBanner);
+
+                                    if ('vibrate' in navigator) navigator.vibrate([100, 100, 100]);
+
+                                    setTimeout(() => {
+                                        if (ackBanner.parentNode) ackBanner.remove();
+                                    }, 5000); // hide after 5s
+                                    // Mark as shown
+                                    sessionStorage.setItem('sosAckShown_' + id, 'true');
+                                }
+                            }
+                        });
+                    }, err => console.log('Firebase SOS check fallback:', err));
+                } catch(e) { console.log('Firebase config not complete:', e); }
+            }
+        }
+
+        setInterval(checkGlobalSystems, 3000);
+        document.addEventListener('DOMContentLoaded', () => {
+            checkGlobalSystems();
+            setupFirebaseSOSListener();
+        });
+
+    </script>
+    <script src="sos-button.js"></script>
+    <script src="voice-sos.js"></script>
+</body>
+
+</html>

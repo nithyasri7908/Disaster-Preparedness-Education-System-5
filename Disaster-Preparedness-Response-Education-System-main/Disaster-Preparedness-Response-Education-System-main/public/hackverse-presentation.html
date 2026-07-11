@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackVerse 2.0 - Official Guidelines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .slide-title {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .slide-subtitle {
+            font-size: 1.3em;
+            color: #666;
+        }
+
+        .slide-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .slide-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .slide-content li {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .slide-content li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .slide-content h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .slide-number {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .timeline {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+
+        .timeline-time {
+            color: #667eea;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        /* Title Slide */
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide .slide-title {
+            color: white;
+            font-size: 4em;
+            margin-bottom: 30px;
+        }
+
+        .title-slide .slide-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.5em;
+        }
+
+        .title-slide .event-info {
+            margin-top: 50px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <div class="slide-header">
+                <h1 class="slide-title">HackVerse 2.0</h1>
+                <p class="slide-subtitle">Official Guidelines</p>
+                <div class="event-info">
+                    <p style="margin-top: 30px; font-size: 1.3em;">National-Level Project Showcasing Hackathon</p>
+                    <p style="margin-top: 20px;">School of Computer Science and Engineering</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Event Overview -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Event Overview</h2>
+            </div>
+            <div class="slide-content">
+                <p><strong>HackVerse 2.0</strong> is a National-Level Project Showcasing Hackathon organized by School of Computer Science and Engineering.</p>
+                
+                <h3>Key Features:</h3>
+                <ul>
+                    <li>Platform for innovative, practical, and impactful projects</li>
+                    <li>Diverse domains of participation</li>
+                    <li>Demonstration-focused event</li>
+                    <li>Innovation and presentation driven</li>
+                    <li>Not a time-bound development sprint</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Focus:</strong> Demonstration, Innovation, and Presentation
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">1 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()" id="prevBtn">← Previous</button>
+                    <button onclick="nextSlide()" id="nextBtn">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Eligibility Criteria -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Eligibility Criteria</h2>
+            </div>
+            <div class="slide-content">
+                <ul>
+                    <li><strong>Open to:</strong> Students enrolled in recognized colleges/universities</li>
+                    <li><strong>Participation:</strong> Individual or teams of up to 4 members</li>
+                    <li><strong>Mandatory:</strong> Valid student ID is required</li>
+                </ul>
+
+                <h3>Team Lead Requirements:</h3>
+                <ul>
+                    <li>All team leaders will be provided with a team lead T-Shirt</li>
+                    <li>It is COMPULSORY to wear the T-Shirt during the Hackathon</li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">2 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Project Guidelines -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Project Guidelines</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Project Requirements:</h3>
+                <ul>
+                    <li>Projects must be <strong>functional</strong> (prototype/MVP)</li>
+                    <li>Projects must be <strong>original</strong></li>
+                    <li>Previously developed projects are <strong>allowed</strong> if owned by participants</li>
+                </ul>
+
+                <h3>Prohibited:</h3>
+                <ul>
+                    <li>Purely theoretical ideas</li>
+                    <li>Plagiarized or copied projects</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Important:</strong> All team leaders must wear their provided T-Shirts compulsorily during the hackathon.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">3 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Domains of Participation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Domains of Participation</h2>
+            </div>
+            <div class="slide-content">
+                <ul>
+                    <li><strong>AI/ML</strong> - Artificial Intelligence & Machine Learning</li>
+                    <li><strong>Web & Mobile Development</strong> - Web and app-based solutions</li>
+                    <li><strong>Cybersecurity</strong> - Security and privacy solutions</li>
+                    <li><strong>IoT</strong> - Internet of Things and embedded systems</li>
+                    <li><strong>Blockchain</strong> - Distributed ledger technologies</li>
+                    <li><strong>Open Innovation</strong> - Any other innovative domain</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Note:</strong> Open Innovation evaluation is based on merit and impact.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">4 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Registration Process -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Registration Process</h2>
+            </div>
+            <div class="slide-content">
+                <ul>
+                    <li>Participants must fill the <strong>registration form</strong> shared earlier</li>
+                    <li><strong>No additional form</strong> is required</li>
+                    <li><strong>Only submitted entries</strong> will be considered</li>
+                </ul>
+
+                <h3>Important Notes:</h3>
+                <ul>
+                    <li>Complete registration is mandatory for participation</li>
+                    <li>Ensure all information is accurate</li>
+                    <li>Keep confirmation details safe</li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">5 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Presentation Format -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Presentation Format</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Time Allocation:</h3>
+                <ul>
+                    <li>Will be decided by the judging panel</li>
+                </ul>
+
+                <h3>Presentation Must Include:</h3>
+                <ul>
+                    <li><strong>Problem Statement</strong> - What problem does your project solve?</li>
+                    <li><strong>Solution</strong> - Your approach to solving it</li>
+                    <li><strong>Implementation</strong> - Technical details and architecture</li>
+                    <li><strong>Demo</strong> - Live demonstration of the project</li>
+                    <li><strong>Impact</strong> - Real-world benefits and outcomes</li>
+                </ul>
+
+                <h3>Q&A Session:</h3>
+                <ul>
+                    <li>Will follow the presentation</li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">6 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Evaluation Criteria -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Evaluation Criteria</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Projects will be evaluated on:</h3>
+                <ul>
+                    <li><strong>Innovation</strong> - Novelty and creativity of the solution</li>
+                    <li><strong>Technical Complexity</strong> - Depth of technical implementation</li>
+                    <li><strong>Practical Impact</strong> - Real-world applicability and benefits</li>
+                    <li><strong>Presentation Skills</strong> - Clarity and communication</li>
+                    <li><strong>Prototype Functionality</strong> - Working and bug-free implementation</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Tip:</strong> Focus on delivering a working prototype with clear presentation and real-world impact.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">7 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Code of Conduct -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Code of Conduct</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Participants must:</h3>
+                <ul>
+                    <li>Maintain <strong>professionalism</strong> at all times</li>
+                    <li><strong>Respect</strong> other participants and organizers</li>
+                    <li><strong>Avoid plagiarism</strong> - Present original work</li>
+                    <li>Comply with all hackathon rules and guidelines</li>
+                </ul>
+
+                <h3>Violations:</h3>
+                <ul>
+                    <li>May lead to <strong>disqualification</strong></li>
+                    <li>The organizing committee has the right to take action</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Remember:</strong> Academic integrity and professionalism are paramount.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">8 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Participant Requirements -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Participant Requirements</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Technical Requirements:</h3>
+                <ul>
+                    <li><strong>Laptop</strong> with required software and tools</li>
+                    <li><strong>Extension board</strong> (Recommended for power backup)</li>
+                    <li><strong>Offline backup</strong> of your entire project</li>
+                </ul>
+
+                <h3>Documentation Requirements:</h3>
+                <ul>
+                    <li>Valid Institution/College ID Card</li>
+                    <li>Valid Government-issued ID Proof</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Pro Tip:</strong> Ensure you have offline access to your project; internet connectivity might be unstable.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">9 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Reporting & Timelines -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Reporting & Timelines</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Important Timeline Information:</h3>
+                <ul>
+                    <li>Participants <strong>must report on time</strong></li>
+                    <li><strong>Late entries</strong> may be restricted</li>
+                </ul>
+
+                <h3>Key Dates & Times:</h3>
+                <ul>
+                    <li><strong>Registration:</strong> 09:00 AM onwards</li>
+                    <li><strong>Event Start:</strong> Follow the official event timeline</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Reminder:</strong> Plan your travel in advance to ensure timely arrival. Use public transport to avoid parking issues.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">10 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Awards & Recognition -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Awards & Recognition</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Award Categories:</h3>
+                <ul>
+                    <li><strong>🥇 Winner</strong> - First Prize</li>
+                    <li><strong>🥈 Runner-Up</strong> - Second Prize</li>
+                    <li><strong>🥉 Second Runner-Up</strong> - Third Prize</li>
+                    <li><strong>🎖️ Consolation Awards</strong> - Recognition awards</li>
+                </ul>
+
+                <h3>Certificates:</h3>
+                <ul>
+                    <li>All participants receive certificates of participation</li>
+                    <li>Winners receive special recognition certificates</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Note:</strong> All awards are decided by the judging panel based on evaluation criteria.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">11 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Anonymity Policy -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Anonymity Policy</h2>
+            </div>
+            <div class="slide-content">
+                <h3>To ensure fair evaluation:</h3>
+                <ul>
+                    <li>Participants must <strong>NOT disclose</strong> their university/college name</li>
+                    <li>Avoid displaying institution name at ANY stage</li>
+                </ul>
+
+                <h3>What NOT to do:</h3>
+                <ul>
+                    <li>Include in presentation slides</li>
+                    <li>Mention in verbal introductions</li>
+                    <li>Display in project demonstrations</li>
+                </ul>
+
+                <h3>Official Communication:</h3>
+                <ul>
+                    <li>Use <strong>Team Name</strong> or <strong>Team ID</strong> for all interactions</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>⚠️ Warning:</strong> Violation of this policy may result in disqualification.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">12 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Identification & Lanyard Policy -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Identification & Lanyard Policy</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Lanyard Requirements:</h3>
+                <ul>
+                    <li>All participants receive an <strong>official lanyard</strong> during registration</li>
+                    <li>It is <strong>MANDATORY</strong> to wear the lanyard at all times within the event premises</li>
+                    <li>Failure to comply may lead to <strong>DISQUALIFICATION</strong> of the entire team</li>
+                </ul>
+
+                <h3>Entry Verification:</h3>
+                <ul>
+                    <li>Entry requires valid Institution/College ID Card</li>
+                    <li>Also requires valid Government-issued ID Proof</li>
+                    <li>Both documents must be presented for verification</li>
+                    <li>Failure to present either document will result in <strong>DENIAL OF ENTRY</strong></li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">13 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Venue Details -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Venue Details</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Location:</h3>
+                <div class="info-box">
+                    <strong>Knowledge Center, Golf Course Road,<br/>
+                    Sector 53, Gurugram, Haryana – 122003</strong>
+                </div>
+
+                <h3>Maps:</h3>
+                <ul>
+                    <li>Location Map: <a href="https://maps.app.goo.gl/XrPZdpMrKnHqdruB8" target="_blank" style="color: #667eea;">View on Google Maps</a></li>
+                    <li>3D Map: <a href="https://maps.app.goo.gl/LngBkgBYK9rRPpx77" target="_blank" style="color: #667eea;">View 3D Map</a></li>
+                </ul>
+
+                <h3>Transport Advice:</h3>
+                <ul>
+                    <li>Plan travel in advance</li>
+                    <li>Use public transport to avoid parking issues</li>
+                    <li>Check multiple route options</li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">14 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Ways to Reach Venue -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Ways to Reach the Venue</h2>
+            </div>
+            <div class="slide-content">
+                <h3>From New Delhi Railway Station:</h3>
+                <ul>
+                    <li>Metro station within railway premises</li>
+                    <li>Delhi Metro Yellow Line → Millennium City Centre Gurugram</li>
+                    <li>Interchange at Sikanderpur metro station to Rapid Metro</li>
+                    <li>Alight at Sector 54 Chowk → Walk to campus</li>
+                </ul>
+
+                <h3>From Gurugram Railway Station:</h3>
+                <ul>
+                    <li>Hire cab/auto directly to university</li>
+                    <li>OR: Nearest metro → Yellow Line → Sector 54 Chowk</li>
+                </ul>
+
+                <h3>From ISBT Kashmiri Gate:</h3>
+                <ul>
+                    <li>Metro at Kashmiri Gate → Yellow Line</li>
+                    <li>Interchange at Sikanderpur → Sector 54 Chowk</li>
+                    <li>Auto ride or walk to campus</li>
+                </ul>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">15 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Event Timeline -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Event Timeline</h2>
+            </div>
+            <div class="slide-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-time">09:00 AM</span>
+                        <span>Registration</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">10:30 AM</span>
+                        <span>Lamp Lighting Ceremony</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">10:35 AM</span>
+                        <span>Welcome Address</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">10:40 AM</span>
+                        <span>Address by Vice Chancellor</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">10:45 AM</span>
+                        <span>Chief Guest Address</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">10:55 AM</span>
+                        <span>Dean's Address</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">11:00 AM - 4:30 PM</span>
+                        <span>Project Evaluation (Judging)</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">2:00 - 3:00 PM</span>
+                        <span>Lunch Break</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">4:30 - 5:00 PM</span>
+                        <span>Valedictory Ceremony</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">5:00 - 5:15 PM</span>
+                        <span>Vote of Thanks</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Note:</strong> All timings are subject to change at the discretion of the organizing committee.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">16 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Rights of Organizing Committee -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Rights of Organizing Committee</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Important Points:</h3>
+                <ul>
+                    <li><strong>Judges' decisions are FINAL</strong></li>
+                    <li>Organizers may <strong>modify rules</strong> as needed</li>
+                    <li><strong>Misconduct</strong> can lead to <strong>disqualification</strong></li>
+                </ul>
+
+                <h3>Committee Authority:</h3>
+                <ul>
+                    <li>Authority over all event decisions</li>
+                    <li>Right to enforce rules and guidelines</li>
+                    <li>Discretion on timeline changes and adjustments</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>⚠️ Important:</strong> Participants are expected to remain flexible and adhere to announcements made during the event.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">17 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Final Reminders -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">Final Reminders</h2>
+            </div>
+            <div class="slide-content">
+                <h3>Participants are strongly advised to:</h3>
+                <ul>
+                    <li>✓ Arrive on time for registration</li>
+                    <li>✓ Follow all guidelines strictly</li>
+                    <li>✓ Maintain professionalism throughout the event</li>
+                    <li>✓ Keep offline backup of your project</li>
+                    <li>✓ Wear mandatory T-Shirt and Lanyard</li>
+                    <li>✓ Carry required ID documents</li>
+                    <li>✓ Use Team Name/ID instead of institution name</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Non-compliance Result:</strong> Non-compliance with any of the above guidelines may result in penalties or disqualification, as deemed appropriate by the organizing committee.
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-number">18 / 18</span>
+                <div class="nav-buttons">
+                    <button onclick="previousSlide()">← Previous</button>
+                    <button onclick="nextSlide()" id="nextBtnLast" disabled>Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = n === 0;
+            document.getElementById('nextBtn').disabled = n === totalSlides - 1;
+            if (document.getElementById('nextBtnLast')) {
+                document.getElementById('nextBtnLast').disabled = n === totalSlides - 1;
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

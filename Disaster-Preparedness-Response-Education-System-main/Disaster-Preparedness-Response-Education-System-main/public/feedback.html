@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <style>
+        body {
+            background: #1a1a2e;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            margin: 0;
+        }
+        .feedback-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 0 20px #00adb5aa;
+        }
+        h1 {
+            color: #00adb5;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .rating-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 1rem 0;
+        }
+        .star {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+        }
+        .feedback-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #00adb5;
+        }
+        input, textarea, select {
+            padding: 0.75rem;
+            border: 2px solid #00adb5;
+            border-radius: 5px;
+            background: #0f3460;
+            color: white;
+            font-size: 1rem;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #008f94;
+            box-shadow: 0 0 5px #00adb5;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .submit-btn {
+            background: #00adb5;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+        .submit-btn:hover {
+            background: #008f94;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #00adb5;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .success-message {
+            display: none;
+            background: #2ecc71;
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+
+    <div class="feedback-container">
+        <h1>Share Your Feedback</h1>
+        <p style="text-align: center; margin-bottom: 2rem; opacity: 0.9;">
+            Help us improve the DPRES platform by sharing your experience and suggestions.
+        </p>
+
+        <form id="feedbackForm" class="feedback-form">
+            <div class="rating-section">
+                <h3>Overall Rating</h3>
+                <div class="rating-stars" id="ratingStars">
+                    <span class="star" data-rating="1">★</span>
+                    <span class="star" data-rating="2">★</span>
+                    <span class="star" data-rating="3">★</span>
+                    <span class="star" data-rating="4">★</span>
+                    <span class="star" data-rating="5">★</span>
+                </div>
+                <div id="ratingText">Click to rate</div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name (Optional)</label>
+                <input type="text" id="name" placeholder="Your name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email (Optional)</label>
+                <input type="email" id="email" placeholder="your.email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="userType">I am a</label>
+                <select id="userType">
+                    <option value="">Select your role</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Administrator</option>
+                    <option value="parent">Parent</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Feedback Category</label>
+                <select id="category">
+                    <option value="">Select category</option>
+                    <option value="learning-modules">Learning Modules</option>
+                    <option value="gamified-experience">Gamified Experience</option>
+                    <option value="emergency-drills">Emergency Drills</option>
+                    <option value="real-time-alerts">Real-time Alerts</option>
+                    <option value="admin-dashboard">Admin Dashboard</option>
+                    <option value="emergency-contacts">Emergency Contacts</option>
+                    <option value="user-interface">User Interface</option>
+                    <option value="technical-issues">Technical Issues</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" placeholder="Brief subject line" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Your Feedback</label>
+                <textarea id="message" placeholder="Please share your detailed feedback, suggestions for improvement, or report any issues you've encountered..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Feedback</button>
+        </form>
+
+        <div id="successMessage" class="success-message">
+            <h3>Thank you for your feedback!</h3>
+            <p>Your input helps us improve the DPRES platform for better disaster preparedness education.</p>
+        </div>
+    </div>
+
+    <script>
+        // Star rating functionality
+        let currentRating = 0;
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.getElementById('ratingText');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = parseInt(star.dataset.rating);
+                updateStars();
+            });
+
+            star.addEventListener('mouseover', () => {
+                const rating = parseInt(star.dataset.rating);
+                highlightStars(rating);
+            });
+        });
+
+        document.getElementById('ratingStars').addEventListener('mouseleave', () => {
+            updateStars();
+        });
+
+        function highlightStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function updateStars() {
+            highlightStars(currentRating);
+            const ratingTexts = ['Click to rate', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            ratingText.textContent = ratingTexts[currentRating];
+        }
+
+        // Form submission
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (currentRating === 0) {
+                alert('Please provide a rating before submitting.');
+                return;
+            }
+
+            const feedbackData = {
+                rating: currentRating,
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                userType: document.getElementById('userType').value,
+                category: document.getElementById('category').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Save feedback to localStorage (in production, this would be sent to a server)
+            const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            feedbacks.push(feedbackData);
+            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+
+            // Show success message
+            document.getElementById('feedbackForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+
+            // Award points for feedback
+            const currentPoints = parseInt(localStorage.getItem('userPoints') || '0');
+            localStorage.setItem('userPoints', (currentPoints + 10).toString());
+
+            // Reset form after 3 seconds and redirect
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        });
+
+        // Load user data if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('userName');
+            const userEmail = localStorage.getItem('userEmail');
+            const userRole = localStorage.getItem('userRole');
+
+            if (userName) {
+                document.getElementById('name').value = userName;
+            }
+            if (userEmail) {
+                document.getElementById('email').value = userEmail;
+            }
+            if (userRole) {
+                document.getElementById('userType').value = userRole.toLowerCase();
+            }
+        });
+    </script>
+</body>
+</html>

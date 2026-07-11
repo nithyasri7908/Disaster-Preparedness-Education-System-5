@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Drills - Virtual Disaster Simulations - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="signin.css" />
+    <link rel="stylesheet" href="login.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #FFD700 0%, #FF6B6B 25%, #4ECDC4 50%, #45B7D1 75%, #96CEB4 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .drill-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .drill-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .simulation-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .scenario {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .choice-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .choice-btn:hover {
+            background: #45b7d1;
+        }
+        .timer {
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .correct { background: #d4edda; color: #155724; }
+        .incorrect { background: #f8d7da; color: #721c24; }
+        .score-display {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .map {
+            background: #eee;
+            height: 200px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            position: relative;
+        }
+        .safety-icon {
+            position: absolute;
+            font-size: 2rem;
+        }
+        .exit { top: 10px; right: 10px; }
+        .alarm { top: 10px; left: 10px; }
+        .first-aid { bottom: 10px; right: 10px; }
+    </style>
+</head>
+<body>
+    <!-- Language Toggle -->
+    <div class="language-toggle">
+        <button id="langToggle" class="btn">हिंदी / English</button>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">🏫 DPRES</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#simulation">Simulations</a></li>
+            
+                <li><a href="learning-modules.html">Learning Modules</a></li>
+                <li><a href="gamified-experience.html">Gamified Experience</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <span class="btn" id="pointsDisplay">Points: 0</span>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1 id="heroTitle">Emergency Drills – Virtual Disaster Simulations</h1>
+        <p id="heroDesc">Practice disaster response safely with interactive virtual drills. Learn evacuation procedures, decision-making, and emergency protocols without any real-world risks.</p>
+    </section>
+
+    <main class="container">
+        <!-- Earthquake Drill -->
+        <section class="drill-section">
+            <div class="drill-icon">🏗️</div>
+            <h2 id="earthquakeTitle">Earthquake Drill</h2>
+            <p id="earthquakeDesc">"Drop, Cover, Hold" classroom simulation. Practice quick responses during seismic activity.</p>
+            <button class="btn" onclick="startDrill('earthquake')">Start Earthquake Drill</button>
+            <div id="earthquakeSimulation" class="simulation-container">
+                <div class="scenario" id="earthquakeScenario"></div>
+                <div class="map">
+                    <div class="safety-icon exit">🚪</div>
+                    <div class="safety-icon alarm">🚨</div>
+                    <div class="safety-icon first-aid">🩹</div>
+                    Classroom Layout
+                </div>
+                <div class="choices" id="earthquakeChoices"></div>
+                <div class="timer" id="earthquakeTimer"></div>
+                <div class="feedback" id="earthquakeFeedback"></div>
+                <div class="score-display" id="earthquakeScore"></div>
+            </div>
+        </section>
+
+        <!-- Fire Drill -->
+        <section class="drill-section">
+            <div class="drill-icon">🔥</div>
+            <h2 id="fireTitle">Fire Drill</h2>
+            <p id="fireDesc">Evacuation routes with alarms and exit markers. Learn safe fire response procedures.</p>
+            <button class="btn" onclick="startDrill('fire')">Start Fire Drill</button>
+            <div id="fireSimulation" class="simulation-container">
+                <div class="scenario" id="fireScenario"></div>
+                <div class="map">
+                    <div class="safety-icon exit">🚪</div>
+                    <div class="safety-icon alarm">🚨</div>
+                    <div class="safety-icon first-aid">🩹</div>
+                    School Building Layout
+                </div>
+                <div class="choices" id="fireChoices"></div>
+                <div class="timer" id="fireTimer"></div>
+                <div class="feedback" id="fireFeedback"></div>
+                <div class="score-display" id="fireScore"></div>
+            </div>
+        </section>
+
+        <!-- Flood Drill -->
+        <section class="drill-section">
+            <div class="drill-icon">🌊</div>
+            <h2 id="floodTitle">Flood Drill</h2>
+            <p id="floodDesc">Choosing safe shelters and avoiding danger zones. Practice flood evacuation strategies.</p>
+            <button class="btn" onclick="startDrill('flood')">Start Flood Drill</button>
+            <div id="floodSimulation" class="simulation-container">
+                <div class="scenario" id="floodScenario"></div>
+                <div class="map">
+                    <div class="safety-icon exit">🚪</div>
+                    <div class="safety-icon alarm">🚨</div>
+                    <div class="safety-icon first-aid">🩹</div>
+                    Neighborhood Map
+                </div>
+                <div class="choices" id="floodChoices"></div>
+                <div class="timer" id="floodTimer"></div>
+                <div class="feedback" id="floodFeedback"></div>
+                <div class="score-display" id="floodScore"></div>
+            </div>
+        </section>
+
+        <!-- Cyclone Drill -->
+        <section class="drill-section">
+            <div class="drill-icon">🌪️</div>
+            <h2 id="cycloneTitle">Cyclone Drill</h2>
+            <p id="cycloneDesc">Preparing emergency kits and securing spaces. Learn cyclone preparedness and response.</p>
+            <button class="btn" onclick="startDrill('cyclone')">Start Cyclone Drill</button>
+            <div id="cycloneSimulation" class="simulation-container">
+                <div class="scenario" id="cycloneScenario"></div>
+                <div class="map">
+                    <div class="safety-icon exit">🚪</div>
+                    <div class="safety-icon alarm">🚨</div>
+                    <div class="safety-icon first-aid">🩹</div>
+                    Coastal Area Layout
+                </div>
+                <div class="choices" id="cycloneChoices"></div>
+                <div class="timer" id="cycloneTimer"></div>
+                <div class="feedback" id="cycloneFeedback"></div>
+                <div class="score-display" id="cycloneScore"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DPRES Platform</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#features">Features</a>
+                    <a href="index.html#simulation">Simulations</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Learning Resources</h3>
+                    <a href="#">Video Tutorials</a>
+                    <a href="#">Practice Quizzes</a>
+                    <a href="#">Download Materials</a>
+                    <a href="#">Certification</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Technical Support</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Feedback</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #34495e; padding-top: 2rem; margin-top: 2rem;">
+                <p>&copy; 2025 Disaster Preparedness & Response Education System. Developed in partnership with NDMA and Ministry of Education, Government of India.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Making Indian schools and colleges disaster-ready through technology and education.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentLanguage = 'en';
+        const translations = {
+            en: {
+                heroTitle: 'Emergency Drills – Virtual Disaster Simulations',
+                heroDesc: 'Practice disaster response safely with interactive virtual drills. Learn evacuation procedures, decision-making, and emergency protocols without any real-world risks.',
+                earthquakeTitle: 'Earthquake Drill',
+                earthquakeDesc: '"Drop, Cover, Hold" classroom simulation. Practice quick responses during seismic activity.',
+                fireTitle: 'Fire Drill',
+                fireDesc: 'Evacuation routes with alarms and exit markers. Learn safe fire response procedures.',
+                floodTitle: 'Flood Drill',
+                floodDesc: 'Choosing safe shelters and avoiding danger zones. Practice flood evacuation strategies.',
+                cycloneTitle: 'Cyclone Drill',
+                cycloneDesc: 'Preparing emergency kits and securing spaces. Learn cyclone preparedness and response.'
+            },
+            hi: {
+                heroTitle: 'आपातकालीन अभ्यास – आभासी आपदा सिमुलेशन',
+                heroDesc: 'सुरक्षित रूप से आपदा प्रतिक्रिया का अभ्यास करें इंटरैक्टिव आभासी अभ्यास के साथ। बिना किसी वास्तविक दुनिया के जोखिम के निकासी प्रक्रियाओं, निर्णय लेने और आपातकालीन प्रोटोकॉल सीखें।',
+                earthquakeTitle: 'भूकंप अभ्यास',
+                earthquakeDesc: '"ड्रॉप, कवर, होल्ड" कक्षा सिमुलेशन। भूकंपीय गतिविधि के दौरान त्वरित प्रतिक्रियाओं का अभ्यास करें।',
+                fireTitle: 'आग अभ्यास',
+                fireDesc: 'अलार्म और निकास मार्कर के साथ निकासी मार्ग। सुरक्षित आग प्रतिक्रिया प्रक्रियाओं सीखें।',
+                floodTitle: 'बाढ़ अभ्यास',
+                floodDesc: 'सुरक्षित आश्रय चुनना और खतरे वाले क्षेत्रों से बचना। बाढ़ निकासी रणनीतियों का अभ्यास करें।',
+                cycloneTitle: 'चक्रवात अभ्यास',
+                cycloneDesc: 'आपातकालीन किट तैयार करना और स्थान सुरक्षित करना। चक्रवात तैयारी और प्रतिक्रिया सीखें।'
+            }
+        };
+
+        // Language toggle
+        document.getElementById('langToggle').addEventListener('click', () => {
+            currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+            updateLanguage();
+        });
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            document.getElementById('heroTitle').textContent = t.heroTitle;
+            document.getElementById('heroDesc').textContent = t.heroDesc;
+            document.getElementById('earthquakeTitle').textContent = t.earthquakeTitle;
+            document.getElementById('earthquakeDesc').textContent = t.earthquakeDesc;
+            document.getElementById('fireTitle').textContent = t.fireTitle;
+            document.getElementById('fireDesc').textContent = t.fireDesc;
+            document.getElementById('floodTitle').textContent = t.floodTitle;
+            document.getElementById('floodDesc').textContent = t.floodDesc;
+            document.getElementById('cycloneTitle').textContent = t.cycloneTitle;
+            document.getElementById('cycloneDesc').textContent = t.cycloneDesc;
+        }
+
+        // Drill scenarios
+        const drills = {
+            earthquake: {
+                scenarios: [
+                    {
+                        scenario: 'You are in class when the ground starts shaking. What do you do first?',
+                        choices: ['Run outside', 'Drop under your desk, cover your head, and hold on', 'Stand in a doorway', 'Hide under the stairs'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Drop, Cover, and Hold On is the safest action during an earthquake.',
+                        feedbackIncorrect: 'Incorrect. Running outside can be dangerous. Always Drop, Cover, and Hold On.'
+                    },
+                    {
+                        scenario: 'After the shaking stops, what should you do?',
+                        choices: ['Go outside immediately', 'Check for injuries and exit calmly', 'Stay under your desk', 'Call your parents'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Assess the situation and evacuate safely.',
+                        feedbackIncorrect: 'Incorrect. Wait for instructions and evacuate orderly.'
+                    }
+                ]
+            },
+            fire: {
+                scenarios: [
+                    {
+                        scenario: 'You smell smoke in the hallway. What do you do?',
+                        choices: ['Ignore it', 'Pull the fire alarm and evacuate', 'Try to find the source', 'Hide in a closet'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Alert others and evacuate immediately.',
+                        feedbackIncorrect: 'Incorrect. Never ignore smoke. Evacuate right away.'
+                    },
+                    {
+                        scenario: 'During evacuation, you see someone struggling. What do you do?',
+                        choices: ['Leave them and save yourself', 'Help them if safe, then continue evacuating', 'Stop and call for help', 'Go back for them alone'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Help if possible, but prioritize safety.',
+                        feedbackIncorrect: 'Incorrect. Help others safely, but don\'t risk your life.'
+                    }
+                ]
+            },
+            flood: {
+                scenarios: [
+                    {
+                        scenario: 'Water is rising quickly in your area. Where do you go?',
+                        choices: ['Stay in your house', 'Go to higher ground or a designated shelter', 'Walk through the water', 'Drive through flooded areas'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Move to safe, high ground.',
+                        feedbackIncorrect: 'Incorrect. Never stay in rising water or drive through floods.'
+                    },
+                    {
+                        scenario: 'You need to cross a flooded street. What do you do?',
+                        choices: ['Walk across carefully', 'Find a bridge or wait for help', 'Swim across', 'Drive through slowly'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Avoid walking or driving through floodwaters.',
+                        feedbackIncorrect: 'Incorrect. Floodwaters can be deceptively dangerous.'
+                    }
+                ]
+            },
+            cyclone: {
+                scenarios: [
+                    {
+                        scenario: 'A cyclone warning is issued. What do you prepare?',
+                        choices: ['Nothing special', 'Secure loose objects, prepare emergency kit, stay indoors', 'Go outside to watch', 'Ignore the warning'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Prepare your home and have supplies ready.',
+                        feedbackIncorrect: 'Incorrect. Cyclones require preparation and sheltering indoors.'
+                    },
+                    {
+                        scenario: 'During the cyclone, you lose power. What do you do?',
+                        choices: ['Go outside', 'Stay indoors, use battery-powered lights, conserve supplies', 'Use candles', 'Open all windows'],
+                        correct: 1,
+                        feedbackCorrect: 'Correct! Stay safe indoors and manage resources.',
+                        feedbackIncorrect: 'Incorrect. Candles can start fires. Stay indoors and avoid drafts.'
+                    }
+                ]
+            }
+        };
+
+        let currentDrill = null;
+        let currentScenarioIndex = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 30;
+
+        function startDrill(type) {
+            currentDrill = type;
+            currentScenarioIndex = 0;
+            score = 0;
+            document.getElementById(type + 'Simulation').style.display = 'block';
+            loadScenario();
+        }
+
+        function loadScenario() {
+            const drill = drills[currentDrill];
+            const scenario = drill.scenarios[currentScenarioIndex];
+            document.getElementById(currentDrill + 'Scenario').textContent = scenario.scenario;
+            const choicesEl = document.getElementById(currentDrill + 'Choices');
+            choicesEl.innerHTML = '';
+            scenario.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice;
+                btn.onclick = () => makeChoice(index);
+                choicesEl.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            updateTimer();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showFeedback(false, 'Time\'s up! You need to act quickly in emergencies.');
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            document.getElementById(currentDrill + 'Timer').textContent = `Time left: ${timeLeft}s`;
+        }
+
+        function makeChoice(choiceIndex) {
+            clearInterval(timer);
+            const scenario = drills[currentDrill].scenarios[currentScenarioIndex];
+            const correct = choiceIndex === scenario.correct;
+            if (correct) score += 10;
+            showFeedback(correct, correct ? scenario.feedbackCorrect : scenario.feedbackIncorrect);
+        }
+
+        function showFeedback(correct, message) {
+            const feedbackEl = document.getElementById(currentDrill + 'Feedback');
+            feedbackEl.textContent = message;
+            feedbackEl.className = 'feedback ' + (correct ? 'correct' : 'incorrect');
+            feedbackEl.style.display = 'block';
+            setTimeout(() => {
+                feedbackEl.style.display = 'none';
+                nextScenario();
+            }, 3000);
+        }
+
+        function nextScenario() {
+            currentScenarioIndex++;
+            const drill = drills[currentDrill];
+            if (currentScenarioIndex < drill.scenarios.length) {
+                loadScenario();
+            } else {
+                endDrill();
+            }
+        }
+
+        function endDrill() {
+            const scoreEl = document.getElementById(currentDrill + 'Score');
+            scoreEl.textContent = `Final Score: ${score}/${drills[currentDrill].scenarios.length * 10}`;
+            // Award points
+            const userXP = parseInt(localStorage.getItem('userXP') || '0') + score;
+            localStorage.setItem('userXP', userXP.toString());
+            scoreEl.textContent += ` | XP Earned: ${score}`;
+            alert(`Drill completed! You earned ${score} XP. ${score >= 15 ? 'Great job!' : 'Keep practicing!'}`);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLanguage();
+            const userXP = parseInt(localStorage.getItem('userXP') || '0');
+            document.getElementById('pointsDisplay').textContent = `Points: ${userXP}`;
+        });
+    </script>
+</body>
+</html>

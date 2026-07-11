@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🚨 Live Emergency Map - Government Dashboard</title>
+    <link rel="stylesheet" href="main.css" />
+    
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYy-iVDuFlEL_zQ-vy1DBsZNP4CWFSxNM",
+            authDomain: "disaster-preparedness-c0969.firebaseapp.com",
+            projectId: "disaster-preparedness-c0969",
+            storageBucket: "disaster-preparedness-c0969.firebasestorage.app",
+            messagingSenderId: "11672612134",
+            appId: "1:11672612134:web:0988dbfeea867e6d8725e7",
+            measurementId: "G-H9VKXNFQR4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.firestore();
+    </script>
+
+    <style>
+        body {
+            background: #f1f5f9;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-bar h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header-bar .nav-controls a {
+            color: white;
+            text-decoration: none;
+            background: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        #map-container {
+            width: 100%;
+            height: 50vh;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            border: 2px solid #cbd5e1;
+            position: relative;
+        }
+        .map-overlay-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        .map-overlay-controls .clear-btn {
+            background: rgba(231, 76, 60, 0.95);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .map-overlay-controls .clear-btn:hover {
+            background: #c0392b;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .alerts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .alert-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-left: 5px solid #cbd5e1;
+            position: relative;
+        }
+        .alert-card.high-risk { border-left-color: #e74c3c; background: #fff5f5; }
+        .alert-card.medium-risk { border-left-color: #f39c12; }
+        .alert-card.low-risk { border-left-color: #2ecc71; }
+        
+        .alert-header { font-weight: bold; margin-bottom: 10px; color: #333; }
+        .alert-meta { font-size: 13px; color: #64748b; margin-bottom: 5px; }
+        .alert-desc {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            color: #b91c1c;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+        .dept-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            background: #1e293b;
+            color: white;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .clear-btn {
+            background:#e74c3c; color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h1>🚨 Live Emergency Map (Government Control Room)</h1>
+        <div class="nav-controls">
+            <a href="index.html">Back to Main System</a>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div id="map-container">
+        <div class="map-overlay-controls">
+            <button class="clear-btn" onclick="clearMapMarkers()">Clear Map Alerts</button>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <h2 style="color: #334155;">Recent SOS Signals</h2>
+    <div class="alerts-grid" id="alertsContainer">
+        <!-- Dynamic Alert Cards -->
+    </div>
+
+    <script>
+        // Check Role
+        if (localStorage.getItem('userRole') === 'Student') {
+            alert("ACCESS DENIED: You do not have Government clearance to view the Live Emergency Map.");
+            window.location.replace('index.html');
+        }
+
+        // Initialize Map
+        // Default Center to Gwalior, MP (where the simulated alerts originate)
+        const map = L.map('map').setView([26.2183, 78.1828], 13);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let markersLayer = L.layerGroup().addTo(map);
+
+        // Define Icons
+        const getCustomIcon = (type) => {
+            let emoji = '📍';
+            if (type === 'Police') emoji = '🚓';
+            if (type === 'Fire Brigade') emoji = '🚒';
+            if (type === 'Hospital') emoji = '🚑';
+            if (type === 'All') emoji = '🚨';
+            
+            return L.divIcon({
+                html: `<div style="font-size:24px; text-shadow: 0 0 5px rgba(255,255,255,0.8);">${emoji}</div>`,
+                className: 'custom-map-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+        };
+
+        const SOS_ALERTS_KEY = 'sosAlerts';
+        let lastAlertCount = -1;
+        let lastAlertTimestamp = 0;
+        let lastAlertIds = [];
+        let suppressMapMarkers = false;
+        let suppressedAlertCount = 0;
+
+        // Alarm Function for Government
+        function playGovernmentAlarm() {
+            // Text to speech for sure-fire notification
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance("EMERGENCY ALERT. NEW S O S SIGNAL RECEIVED.");
+                msg.volume = 1;
+                msg.rate = 0.9;
+                window.speechSynthesis.speak(msg);
+            }
+            try {
+                // Try playing audio file if available
+                const audio = new Audio('alert.mp3');
+                audio.volume = 1.0;
+                audio.play().catch(e => console.log('No alert.mp3 found, using TTS only'));
+            } catch (e) {}
+        }
+
+        window.refreshSOSMarkers = function() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+            markersLayer.clearLayers();
+
+            const alerts = JSON.parse(localStorage.getItem(SOS_ALERTS_KEY) || '[]');
+            
+            // Check for new alerts to trigger alarm
+            const currentAlertIds = alerts.map(alert => alert.id).filter(Boolean);
+            const latestAlertTime = alerts.reduce((latest, alert) => {
+                const ts = alert.timestamp ? new Date(alert.timestamp).getTime() : 0;
+                return !isNaN(ts) && ts > latest ? ts : latest;
+            }, 0);
+
+            let shouldPlayAlarm = false;
+            if (lastAlertCount !== -1) {
+                if (alerts.length > lastAlertCount) {
+                    const addedAlertIds = currentAlertIds.filter(id => !lastAlertIds.includes(id));
+                    shouldPlayAlarm = addedAlertIds.length > 0;
+                } else if (alerts.length === lastAlertCount) {
+                    const addedAlertIds = currentAlertIds.filter(id => !lastAlertIds.includes(id));
+                    shouldPlayAlarm = addedAlertIds.length > 0 || latestAlertTime > lastAlertTimestamp;
+                } else if (latestAlertTime > lastAlertTimestamp) {
+                    shouldPlayAlarm = true;
+                }
+            }
+
+            if (shouldPlayAlarm) {
+                playGovernmentAlarm();
+            }
+
+            lastAlertCount = alerts.length;
+            lastAlertTimestamp = latestAlertTime;
+            lastAlertIds = currentAlertIds;
+
+            if (alerts.length === 0) {
+                container.innerHTML = '<p>No active emergencies.</p>';
+                return;
+            }
+
+            // We will collect all markers to adjust map bounds
+            const bounds = [];
+
+            // If the map was cleared and there are no new alerts, keep markers hidden
+            const shouldRenderMarkers = !(suppressMapMarkers && alerts.length === suppressedAlertCount);
+            if (!shouldRenderMarkers && alerts.length > 0) {
+                // Keep map cleared until new alert arrives
+                markersLayer.clearLayers();
+            }
+
+            // Sort alerts by newest first
+            alerts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(alert => {
+                
+                let pLat = alert.lat;
+                let pLng = alert.lng;
+                if(pLat === undefined && alert.location && typeof alert.location === 'string' && alert.location.includes(',')) {
+                     const parts = alert.location.split(',');
+                     pLat = parseFloat(parts[0].trim());
+                     pLng = parseFloat(parts[1].trim());
+                }
+
+                // Plot on Map Focus
+                if (pLat && pLng && !isNaN(pLat) && !isNaN(pLng)) {
+                    if (shouldRenderMarkers) {
+                        const icon = getCustomIcon(alert.targetDepartment || 'All');
+                        const marker = L.marker([pLat, pLng], {icon}).addTo(markersLayer);
+                        
+                        const popupHTML = `
+                        <strong>${alert.triggerType || 'Manual SOS'}</strong><br/>
+                        <b>From:</b> ${alert.senderName || alert.senderEmail || 'Unknown User'} (${alert.senderRole || 'User'})<br/>
+                        <b>Phone:</b> ${alert.senderPhone || 'N/A'}<br/>
+                        <b>Parents:</b> ${alert.senderParentDetails || 'N/A'}<br/>
+                        <b>Dept:</b> ${alert.targetDepartment || 'All'}<br/>
+                        <b>Risk:</b> ${alert.riskEmoji || '🚨'} ${alert.riskZone || 'N/A'}<br/>
+                        <p style="color:red; font-size:11px;">${alert.description || 'No description provided'}</p>
+                        ${alert.audioDataUrl ? `<audio controls src="${alert.audioDataUrl}" style="width:100%; margin-top:5px; height:30px;"></audio>` : `<div style="color:#777; font-size:11px;">No Audio Sent</div>`}
+                    `;
+                        marker.bindPopup(popupHTML);
+                        bounds.push([pLat, pLng]);
+                    }
+                }
+
+                // Render Card
+                const card = document.createElement('div');
+                let riskClass = 'low-risk';
+                if (alert.riskZone === 'High Risk') riskClass = 'high-risk';
+                if (alert.riskZone === 'Medium Risk') riskClass = 'medium-risk';
+
+                card.className = `alert-card ${riskClass}`;
+                
+                const formattedTime = new Date(alert.timestamp).toLocaleString();
+                
+                card.innerHTML = `
+                    <div class="dept-badge">${alert.targetDepartment || 'General'}</div>
+                    <div class="alert-header">${alert.riskEmoji} ${alert.riskZone || 'Alert'} - ${alert.triggerType || 'Manual'}</div>
+                    <div class="alert-meta"><b>Time:</b> ${formattedTime}</div>
+                    <div class="alert-meta"><b>Sender:</b> ${alert.senderName} (${alert.senderRole})</div>
+                    <div class="alert-meta"><b>Phone:</b> ${alert.senderPhone || 'N/A'}</div>
+                    <div class="alert-meta"><b>Parents Info:</b> ${alert.senderParentDetails || 'N/A'}</div>
+                    <div class="alert-meta"><b>GPS:</b> ${alert.location}</div>
+                    <div class="alert-desc">${alert.description}</div>
+                    ${alert.audioDataUrl ? `<audio controls src="${alert.audioDataUrl}" style="width:100%; margin-top:10px; height:35px;"></audio>` : `<div style="color:#777; font-size:11px; margin-top:5px;">No Audio Sent</div>`}
+                `;
+                
+                container.appendChild(card);
+            });
+
+            // Auto fit map bounds if there are markers
+            if (bounds.length > 0 && shouldRenderMarkers) {
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+            }
+        }
+
+        // Clear Map Markers only
+        window.clearMapMarkers = function() {
+            if (confirm("Clear only map alerts? This will remove markers from the map but keep the alert list.")) {
+                const alerts = JSON.parse(localStorage.getItem(SOS_ALERTS_KEY) || '[]');
+                suppressMapMarkers = true;
+                suppressedAlertCount = alerts.length;
+                markersLayer.clearLayers();
+            }
+        }
+
+        // Setup Firebase Real-time sync for Government Map
+        if (window.db) {
+            window.db.collection("live_sos_signals").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                const freshAlerts = [];
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    data.id = doc.id;
+                    if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+                        data.timestamp = data.timestamp.toDate().toISOString();
+                    } else if (data.timestamp && data.timestamp.seconds) {
+                        data.timestamp = new Date(data.timestamp.seconds * 1000).toISOString();
+                    }
+                    freshAlerts.push(data);
+                });
+                localStorage.setItem(SOS_ALERTS_KEY, JSON.stringify(freshAlerts));
+                refreshSOSMarkers();
+            });
+        } else {
+            // Fallback interval if Firebase fails to load
+            setInterval(refreshSOSMarkers, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshSOSMarkers);
+    </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Learning Modules - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="signin.css" />
+    <link rel="stylesheet" href="login.css" />
+    <style>
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card.click-animation {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        .feature-card.click-animation h3 {
+            color: #fff !important;
+        }
+        .feature-card.click-animation p {
+            color: #f0f0f0 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">🏫 DPRES</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#simulation">Simulations</a></li>
+                <li><a href="gamified-experience.html">Gamified Experience</a></li>
+                <li><a href="emergency-drills.html">Emergency Drills</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <span class="btn" id="loginBtn">Points: 0</span>
+        </nav>
+    </header>
+
+    <!-- Learning Modules Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Interactive Learning Modules</h1>
+            <p>Region-specific disaster education with engaging content for earthquakes, floods, fires, and cyclones tailored to Indian geography.</p>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Available Learning Modules</h2>
+            <div class="features-grid">
+                <a href="https://youtu.be/BLEPakj1YTY?si=lpwD2sCxxRG_t4df" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'earthquake');">
+                    <span class="feature-icon">🏗️</span>
+                    <h3>Earthquake Preparedness</h3>
+                    <p>Learn about seismic zones in India, building codes, and personal safety measures during earthquakes.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 3:37 minutes<br>
+                        <strong>Points:</strong> 50
+                    </div>
+                </a>
+                <a href="https://youtu.be/43M5mZuzHF8?si=tvctH-peGYkrzemp" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'flood');">
+                    <span class="feature-icon">🌊</span>
+                    <h3>Flood Response</h3>
+                    <p>Understanding flood-prone areas, evacuation procedures, and water safety protocols.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 4:07 minutes<br>
+                        <strong>Points:</strong> 60
+                    </div>
+                </a>
+                <a href="https://youtu.be/GVBamXXVD30?si=VU5fL_pgSO3Zu2TL" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'fire');">
+                    <span class="feature-icon">🔥</span>
+                    <h3>Fire Safety</h3>
+                    <p>Fire prevention, evacuation routes, and proper use of fire extinguishers in school environments.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 0:32 minutes<br>
+                        <strong>Points:</strong> 40
+                    </div>
+                </a>
+                <a href="https://youtu.be/8d0KA0qGirA?si=JWkJDmNXMZvdlEPQ" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'cyclone');">
+                    <span class="feature-icon">🌪️</span>
+                    <h3>Cyclone Awareness</h3>
+                    <p>Coastal region preparedness, storm surge warnings, and cyclone shelter protocols.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 1:32 minutes<br>
+                        <strong>Points:</strong> 70
+                    </div>
+                </a>
+                <a href="https://youtu.be/ooVXDYzrMA8?si=70E24LgABEr-tsbn" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'chemical');">
+                    <span class="feature-icon">⚠️</span>
+                    <h3>Chemical Hazard</h3>
+                    <p>Industrial area safety, chemical spill response, and protective equipment usage.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 10:06 minutes<br>
+                        <strong>Points:</strong> 80
+                    </div>
+                </a>
+                <a href="https://youtu.be/kE3XAwR412I?si=OPYiUxFxj67Kj2IB" class="feature-card" target="_blank" onclick="handleModuleClick(this, 'general');">
+                    <span class="feature-icon">📚</span>
+                    <h3>General Disaster Preparedness</h3>
+                    <p>Emergency kits, family communication plans, and basic first aid knowledge.</p>
+                    <div style="margin-top: 1rem;">
+                        <strong>Duration:</strong> 2:27 minutes<br>
+                        <strong>Points:</strong> 100
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="dashboard">
+        <div class="container">
+            <h2 class="section-title">Your Learning Progress</h2>
+            <div class="dashboard-demo">
+                <div class="metric-card">
+                    <div>
+                        <strong>Modules Completed</strong>
+                        <div>This Month</div>
+                    </div>
+                    <div id="modulesCompleted" style="font-size: 2rem;">0/6</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(45deg, #4ecdc4, #44a08d);">
+                    <div>
+                        <strong>Total Points Earned</strong>
+                        <div>All Time</div>
+                    </div>
+                    <div id="totalPoints" style="font-size: 2rem;">0</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                    <div>
+                        <strong>Current Streak</strong>
+                        <div>Days</div>
+                    </div>
+                    <div id="currentStreak" style="font-size: 2rem;">0</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DPRES Platform</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#features">Features</a>
+                    <a href="index.html#simulation">Simulations</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Learning Resources</h3>
+                    <a href="#">Video Tutorials</a>
+                    <a href="https://www.mediafire.com/file/f7qb6c5a1szh9sy/Disaster_Practice_Quizzes.pdf/file">Practice Quizzes</a>
+                    <a href="#">Download Materials</a>
+                    <a href="#">Certification</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Technical Support</a>
+                    <a href="https://www.mediafire.com/file/i6rvqxv45jdp5ji/emergency-contacts+(1).csv/file">Contact Us</a>
+                    <a href="file:///C:/Users/hp/Downloads/hackthon%20website/my-dpres-project/public/feedback.html">Feedback</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #34495e; padding-top: 2rem; margin-top: 2rem;">
+                <p>&copy; 2025 Disaster Preparedness & Response Education System. Developed in partnership with NDMA and Ministry of Education, Government of India.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Making Indian schools and colleges disaster-ready through technology and education.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Points management
+        const userName = localStorage.getItem('userName') || 'guest';
+        const pointsKey = 'userPoints_' + userName;
+        const streakKey = 'currentStreak_' + userName;
+        const lastActivityKey = 'lastActivityDate_' + userName;
+        const modulesKey = 'modulesOpened_' + userName;
+
+        // Points management
+        function getPoints() {
+            return parseInt(localStorage.getItem(pointsKey) || '0');
+        }
+
+        function setPoints(points) {
+            localStorage.setItem(pointsKey, points.toString());
+            updatePointsDisplay();
+            updateTotalPointsDisplay();
+        }
+
+        function updatePointsDisplay() {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.textContent = `Points: ${getPoints()}`;
+            }
+        }
+
+        function updateTotalPointsDisplay() {
+            const totalPointsEl = document.getElementById('totalPoints');
+            if (totalPointsEl) {
+                totalPointsEl.textContent = getPoints();
+            }
+        }
+
+        function getCurrentStreak() {
+            return parseInt(localStorage.getItem(streakKey) || '0');
+        }
+
+        function setCurrentStreak(streak) {
+            localStorage.setItem(streakKey, streak.toString());
+            updateCurrentStreakDisplay();
+        }
+
+        function updateCurrentStreakDisplay() {
+            const currentStreakEl = document.getElementById('currentStreak');
+            if (currentStreakEl) {
+                currentStreakEl.textContent = getCurrentStreak();
+            }
+        }
+
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const lastActivity = localStorage.getItem(lastActivityKey);
+
+            if (lastActivity === today) {
+                return;
+            }
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+
+            if (lastActivity === yesterdayStr) {
+                setCurrentStreak(getCurrentStreak() + 1);
+            } else {
+                setCurrentStreak(1);
+            }
+            localStorage.setItem(lastActivityKey, today);
+        }
+
+        // Module functions
+        let modulesOpened = new Set();
+
+        function loadModulesOpened() {
+            const stored = localStorage.getItem(modulesKey);
+            if (stored) {
+                modulesOpened = new Set(JSON.parse(stored));
+            }
+        }
+
+        function saveModulesOpened() {
+            localStorage.setItem(modulesKey, JSON.stringify([...modulesOpened]));
+        }
+
+        function updateProgress() {
+            const completed = modulesOpened.size;
+            const modulesCompletedEl = document.getElementById('modulesCompleted');
+            if (modulesCompletedEl) {
+                modulesCompletedEl.textContent = `${completed}/6`;
+            }
+
+            // Visual Tracking: Add Checkmarks to Completed UI Cards
+            modulesOpened.forEach(type => {
+                const elements = document.querySelectorAll(`a[onclick*="'${type}'"]`);
+                elements.forEach(el => {
+                    if (!el.classList.contains('completed-module')) {
+                        el.classList.add('completed-module');
+                        el.style.border = '2px solid #2ecc71';
+                        el.style.background = '#f0fdf4';
+                        el.style.position = 'relative';
+                        
+                        const badge = document.createElement('div');
+                        badge.innerHTML = '✅ Completed';
+                        badge.style.cssText = 'position:absolute; top:10px; right:10px; background:#2ecc71; color:white; padding:4px 8px; border-radius:12px; font-size:11px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+                        el.appendChild(badge);
+                    }
+                });
+            });
+        }
+
+        function handleModuleClick(card, type) {
+            card.classList.add('click-animation');
+            setTimeout(() => {
+                startModule(type);
+                setTimeout(() => {
+                    card.classList.remove('click-animation');
+                }, 300);
+            }, 300);
+        }
+
+        function startModule(type) {
+            // Prevent points farming for already completed modules
+            if (modulesOpened.has(type)) {
+                return;
+            }
+
+            const modules = {
+                earthquake: 'Earthquake Preparedness Module',
+                flood: 'Flood Response Module',
+                fire: 'Fire Safety Module',
+                cyclone: 'Cyclone Awareness Module',
+                chemical: 'Chemical Hazard Module',
+                general: 'General Disaster Preparedness Module'
+            };
+
+            const points = {
+                earthquake: 50,
+                flood: 60,
+                fire: 40,
+                cyclone: 70,
+                chemical: 80,
+                general: 100
+            };
+
+            alert(`Starting ${modules[type]}...\n\nPoints to earn: ${points[type]}`);
+
+            // Track opened modules
+            modulesOpened.add(type);
+            saveModulesOpened();
+            updateStreak();
+
+            // Award points immediately
+            const currentPoints = getPoints();
+            setPoints(currentPoints + points[type]);
+            
+            // Re-render UI
+            updateProgress();
+
+            // Check if all modules are opened
+            const allModules = Object.keys(modules);
+            if (allModules.every(m => modulesOpened.has(m))) {
+                showCompletionVideo();
+            }
+        }
+
+        function showCompletionVideo(points) {
+            alert('Congratulations! You have opened all learning modules. Now playing the completion video.');
+            const videoWindow = window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'completionVideo', 'width=800,height=600');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePointsDisplay();
+            updateTotalPointsDisplay();
+            loadModulesOpened();
+            updateProgress();
+            updateStreak();
+            updateCurrentStreakDisplay();
+        });
+    </script>
+</body>
+</html>

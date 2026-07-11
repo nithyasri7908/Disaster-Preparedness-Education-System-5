@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Alerts - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="signin.css" />
+    <link rel="stylesheet" href="login.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+    <style>
+        .alert-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .alert-card.safe {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+
+        .alert-card.caution {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+
+        .alert-card.danger {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .alert-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .alert-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .alert-region {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .alert-description {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .alert-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .alert-btn.primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .alert-btn.secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .map-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .map-placeholder::before {
+            content: "🗺️";
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .notification-settings {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .setting-toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .setting-toggle.active {
+            background: #27ae60;
+        }
+
+        .setting-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .setting-toggle.active::after {
+            transform: translateX(26px);
+        }
+
+        .language-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .alert-history {
+            margin: 2rem 0;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .history-icon {
+            font-size: 1.5rem;
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .alert-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .alert-actions {
+                flex-direction: column;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">🏫 DPRES</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#simulation">Simulations</a></li>
+                <li><a href="index.html#dashboard">Dashboard</a></li>
+              <!--  <li><a href="gamified-experience.html">Gamified Experience</a></li>
+                <li><a href="emergency-drills.html">Emergency Drills</a></li>
+                <li><a href="real-time-alerts.html" class="active">Real-Time Alerts</a></li>-->
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <span class="btn" id="loginBtn">Points: 0</span>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Real-Time Alerts & Notifications</h1>
+            <p>Instant disaster notifications integrated with NDMA systems. Stay informed with region-specific alerts, safety instructions, and emergency protocols.</p>
+            <div class="language-toggle">
+                <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+                <button class="lang-btn" onclick="switchLanguage('hi')">हिंदी</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Current Alerts Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Current Alerts</h2>
+            <div id="alertsContainer">
+                <!-- Dynamic alerts will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Dashboard -->
+    <section class="dashboard">
+        <div class="container">
+            <h2 class="section-title">Alert Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAlerts">24</div>
+                    <div class="stat-label">Total Alerts Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeAlerts">3</div>
+                    <div class="stat-label">Active Alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="regionsAffected">12</div>
+                    <div class="stat-label">Regions Affected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="institutionsNotified">156</div>
+                    <div class="stat-label">Institutions Notified</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="simulation">
+        <div class="container">
+            <h2 class="section-title">Affected Regions Map</h2>
+            <div class="map-container">
+                <div id="map" style="height: 400px; border-radius: 8px;"></div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    🔴 High Risk Zones | 🟡 Medium Risk | 🟢 Low Risk | 🟠 SOS Emergency
+                    <br>Real-time integration with NDMA, IMD, and local disaster management systems
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alert History -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Recent Alert History</h2>
+            <div class="alert-history" id="alertHistory">
+                <!-- History items will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification Settings -->
+    <section class="alert-system">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Notification Preferences</h2>
+            <div class="notification-settings">
+                <h3>Configure Your Alert Settings</h3>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <span>🔔 Push Notifications</span>
+                        <div class="setting-toggle active" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>📱 SMS Alerts</span>
+                        <div class="setting-toggle active" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>📧 Email Notifications</span>
+                        <div class="setting-toggle" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>⚡ Emergency Protocols</span>
+                        <div class="setting-toggle active" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>🌧️ Weather Alerts</span>
+                        <div class="setting-toggle active" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <span>🏫 School Notifications</span>
+                        <div class="setting-toggle active" onclick="toggleSetting(this)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DPRES Platform</h3>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#features">Features</a>
+                    <a href="index.html#simulation">Simulations</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Emergency Resources</h3>
+                    <a href="#">Alert Guidelines</a>
+                    <a href="#">Safety Protocols</a>
+                    <a href="#">Emergency Contacts</a>
+                    <a href="#">Disaster Preparedness</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Technical Support</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Feedback</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #34495e; padding-top: 2rem; margin-top: 2rem;">
+                <p>&copy; 2025 Disaster Preparedness & Response Education System. Developed in partnership with NDMA and Ministry of Education, Government of India.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Real-time alerts powered by NDMA, IMD, and local disaster management systems.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                title: "Real-Time Alerts & Notifications",
+                subtitle: "Instant disaster notifications integrated with NDMA systems. Stay informed with region-specific alerts, safety instructions, and emergency protocols.",
+                currentAlerts: "Current Alerts",
+                alertStats: "Alert Statistics",
+                totalAlerts: "Total Alerts Today",
+                activeAlerts: "Active Alerts",
+                regionsAffected: "Regions Affected",
+                institutionsNotified: "Institutions Notified",
+                affectedRegions: "Affected Regions Map",
+                recentHistory: "Recent Alert History",
+                notificationPrefs: "Notification Preferences",
+                configureSettings: "Configure Your Alert Settings",
+                pushNotifications: "Push Notifications",
+                smsAlerts: "SMS Alerts",
+                emailNotifications: "Email Notifications",
+                emergencyProtocols: "Emergency Protocols",
+                weatherAlerts: "Weather Alerts",
+                schoolNotifications: "School Notifications"
+            },
+            hi: {
+                title: "रियल-टाइम अलर्ट और अधिसूचनाएं",
+                subtitle: "एनडीएमए सिस्टम के साथ एकीकृत तत्काल आपदा अधिसूचनाएं। क्षेत्र-विशिष्ट अलर्ट, सुरक्षा निर्देशों और आपातकालीन प्रोटोकॉल के साथ सूचित रहें।",
+                currentAlerts: "वर्तमान अलर्ट",
+                alertStats: "अलर्ट आंकड़े",
+                totalAlerts: "आज कुल अलर्ट",
+                activeAlerts: "सक्रिय अलर्ट",
+                regionsAffected: "प्रभावित क्षेत्र",
+                institutionsNotified: "सूचित संस्थान",
+                affectedRegions: "प्रभावित क्षेत्रों का मानचित्र",
+                recentHistory: "हालिया अलर्ट इतिहास",
+                notificationPrefs: "अधिसूचना प्राथमिकताएं",
+                configureSettings: "अपनी अलर्ट सेटिंग्स कॉन्फ़िगर करें",
+                pushNotifications: "पुश अधिसूचनाएं",
+                smsAlerts: "एसएमएस अलर्ट",
+                emailNotifications: "ईमेल अधिसूचनाएं",
+                emergencyProtocols: "आपातकालीन प्रोटोकॉल",
+                weatherAlerts: "मौसम अलर्ट",
+                schoolNotifications: "स्कूल अधिसूचनाएं"
+            }
+        };
+
+        // Current language
+        let currentLanguage = 'en';
+
+        // Sample alert data
+        const sampleAlerts = [
+            {
+                id: 1,
+                type: 'danger',
+                title: '🔴 Heavy Rainfall Alert',
+                titleHi: '🔴 भारी वर्षा अलर्ट',
+                description: 'Heavy rainfall expected in Gwalior and surrounding areas. Risk of flooding in low-lying areas.',
+                descriptionHi: 'ग्वालियर और आसपास के क्षेत्रों में भारी वर्षा की उम्मीद। निचले इलाकों में बाढ़ का खतरा।',
+                region: 'Madhya Pradesh - Gwalior District',
+                regionHi: 'मध्य प्रदेश - ग्वालियर जिला',
+                time: '2 hours ago',
+                timeHi: '2 घंटे पहले',
+                severity: 'High',
+                source: 'IMD Weather Warning'
+            },
+            {
+                id: 2,
+                type: 'caution',
+                title: '🟡 Flood Watch',
+                titleHi: '🟡 बाढ़ निगरानी',
+                description: 'Flood watch issued for low-lying areas in Morar and Lashkar areas. Monitor water levels closely.',
+                descriptionHi: 'मोरार और लश्कर क्षेत्रों के निचले इलाकों के लिए बाढ़ निगरानी जारी। जल स्तरों पर करीब से नजर रखें।',
+                region: 'Madhya Pradesh - Gwalior District',
+                regionHi: 'मध्य प्रदेश - ग्वालियर जिला',
+                time: '4 hours ago',
+                timeHi: '4 घंटे पहले',
+                severity: 'Medium',
+                source: 'State Disaster Management'
+            },
+            {
+                id: 3,
+                type: 'safe',
+                title: '🟢 All Clear',
+                titleHi: '🟢 सभी स्पष्ट',
+                description: 'Weather conditions have improved. No immediate threats detected.',
+                descriptionHi: 'मौसम की स्थिति में सुधार हुआ है। कोई तत्काल खतरा नहीं पाया गया।',
+                region: 'Madhya Pradesh - All Districts',
+                regionHi: 'मध्य प्रदेश - सभी जिले',
+                time: '1 hour ago',
+                timeHi: '1 घंटा पहले',
+                severity: 'Low',
+                source: 'NDMA Update'
+            }
+        ];
+
+        // Sample alert history
+        const alertHistory = [
+            {
+                icon: '🌧️',
+                title: 'Heavy Rainfall Warning',
+                titleHi: 'भारी वर्षा चेतावनी',
+                time: '2 hours ago',
+                timeHi: '2 घंटे पहले'
+            },
+            {
+                icon: '🌪️',
+                title: 'Cyclone Alert',
+                titleHi: 'चक्रवात अलर्ट',
+                time: '1 day ago',
+                timeHi: '1 दिन पहले'
+            },
+            {
+                icon: '🔥',
+                title: 'Fire Safety Drill',
+                titleHi: 'आग सुरक्षा अभ्यास',
+                time: '2 days ago',
+                timeHi: '2 दिन पहले'
+            },
+            {
+                icon: '🌍',
+                title: 'Earthquake Preparedness',
+                titleHi: 'भूकंप तैयारी',
+                time: '3 days ago',
+                timeHi: '3 दिन पहले'
+            }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlerts();
+            loadAlertHistory();
+            updateStats();
+            startRealTimeUpdates();
+            startAlertHistoryUpdates();
+        });
+
+        // Language switching
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update page content
+            const t = translations[lang];
+            document.querySelector('h1').textContent = t.title;
+            document.querySelector('.hero p').textContent = t.subtitle;
+            document.querySelectorAll('.section-title')[0].textContent = t.currentAlerts;
+            document.querySelectorAll('.section-title')[1].textContent = t.alertStats;
+            document.querySelectorAll('.section-title')[2].textContent = t.affectedRegions;
+            document.querySelectorAll('.section-title')[3].textContent = t.recentHistory;
+            document.querySelectorAll('.section-title')[4].textContent = t.notificationPrefs;
+
+            document.querySelector('.notification-settings h3').textContent = t.configureSettings;
+
+            // Update setting labels
+            const settingItems = document.querySelectorAll('.setting-item span');
+            settingItems[0].textContent = '🔔 ' + t.pushNotifications;
+            settingItems[1].textContent = '📱 ' + t.smsAlerts;
+            settingItems[2].textContent = '📧 ' + t.emailNotifications;
+            settingItems[3].textContent = '⚡ ' + t.emergencyProtocols;
+            settingItems[4].textContent = '🌧️ ' + t.weatherAlerts;
+            settingItems[5].textContent = '🏫 ' + t.schoolNotifications;
+
+            // Update stat labels
+            const statLabels = document.querySelectorAll('.stat-label');
+            statLabels[0].textContent = t.totalAlerts;
+            statLabels[1].textContent = t.activeAlerts;
+            statLabels[2].textContent = t.regionsAffected;
+            statLabels[3].textContent = t.institutionsNotified;
+
+            // Reload alerts with new language
+            loadAlerts();
+            loadAlertHistory();
+        }
+
+        // Load current alerts
+        function loadAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+
+            sampleAlerts.forEach(alert => {
+                const alertCard = document.createElement('div');
+                alertCard.className = `alert-card ${alert.type}`;
+
+                const title = currentLanguage === 'hi' ? alert.titleHi : alert.title;
+                const description = currentLanguage === 'hi' ? alert.descriptionHi : alert.description;
+                const region = currentLanguage === 'hi' ? alert.regionHi : alert.region;
+                const time = currentLanguage === 'hi' ? alert.timeHi : alert.time;
+
+                alertCard.innerHTML = `
+                    <div class="alert-header">
+                        <h3 class="alert-title">${title}</h3>
+                        <span class="alert-time">${time}</span>
+                    </div>
+                    <div class="alert-region">${region}</div>
+                    <p class="alert-description">${description}</p>
+                    <div class="alert-actions">
+                        <button class="alert-btn primary" onclick="viewDetails(${alert.id})">View Details</button>
+                        <button class="alert-btn secondary" onclick="dismissAlert(${alert.id})">Dismiss</button>
+                    </div>
+                `;
+
+                container.appendChild(alertCard);
+            });
+        }
+
+        // Load alert history
+        function loadAlertHistory() {
+            const container = document.getElementById('alertHistory');
+            container.innerHTML = '';
+
+            alertHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                const title = currentLanguage === 'hi' ? item.titleHi : item.title;
+                const time = currentLanguage === 'hi' ? item.timeHi : item.time;
+
+                historyItem.innerHTML = `
+                    <span class="history-icon">${item.icon}</span>
+                    <div class="history-content">
+                        <div style="font-weight: bold;">${title}</div>
+                        <div class="history-time">${time}</div>
+                    </div>
+                `;
+
+                container.appendChild(historyItem);
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            // Simulate real-time updates with more realistic logic
+            setInterval(() => {
+                const totalAlerts = document.getElementById('totalAlerts');
+                const activeAlerts = document.getElementById('activeAlerts');
+                const regionsAffected = document.getElementById('regionsAffected');
+                const institutionsNotified = document.getElementById('institutionsNotified');
+
+                let totalAlertsVal = parseInt(totalAlerts.textContent);
+                let activeAlertsVal = parseInt(activeAlerts.textContent);
+                let regionsAffectedVal = parseInt(regionsAffected.textContent);
+                let institutionsNotifiedVal = parseInt(institutionsNotified.textContent);
+
+                // Total alerts: Can increase or decrease slightly (new alerts vs resolved ones)
+                const totalChange = Math.floor(Math.random() * 5) - 2; // -2 to +2
+                totalAlertsVal = Math.max(20, totalAlertsVal + totalChange); // Minimum 20
+                totalAlerts.textContent = totalAlertsVal;
+
+                // Active alerts: Can increase or decrease based on alert resolution
+                const activeChange = Math.random() > 0.6 ? 1 : (Math.random() > 0.7 ? -1 : 0);
+                activeAlertsVal = Math.max(1, Math.min(totalAlertsVal, activeAlertsVal + activeChange));
+                activeAlerts.textContent = activeAlertsVal;
+
+                // Regions affected: Can increase or decrease based on situation improvement
+                const regionChange = Math.random() > 0.75 ? 1 : (Math.random() > 0.8 ? -1 : 0);
+                regionsAffectedVal = Math.max(1, Math.min(20, regionsAffectedVal + regionChange));
+                regionsAffected.textContent = regionsAffectedVal;
+
+                // Institutions notified: Generally increases but can occasionally decrease if alerts are resolved
+                const institutionChange = Math.random() > 0.9 ? -Math.floor(Math.random() * 3) : Math.floor(Math.random() * 8);
+                institutionsNotifiedVal = Math.max(100, institutionsNotifiedVal + institutionChange);
+                institutionsNotified.textContent = institutionsNotifiedVal;
+            }, 30000); // Update every 30 seconds
+        }
+
+        // Toggle settings
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+        }
+
+        // Alert actions
+        function viewDetails(alertId) {
+            const alert = sampleAlerts.find(a => a.id === alertId);
+            if (alert) {
+                const title = currentLanguage === 'hi' ? alert.titleHi : alert.title;
+                const description = currentLanguage === 'hi' ? alert.descriptionHi : alert.description;
+                alert(`${title}\n\n${description}\n\nSource: ${alert.source}\nSeverity: ${alert.severity}`);
+            }
+        }
+
+        function dismissAlert(alertId) {
+            // In a real implementation, this would send a request to the server
+            alert('Alert dismissed. You will no longer receive notifications for this alert.');
+        }
+
+        // Simulate real-time updates
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate new alert arrival
+                if (Math.random() > 0.95) { // 5% chance every 30 seconds
+                    showNotificationBanner();
+                }
+            }, 30000);
+        }
+
+        // Show notification banner
+        function showNotificationBanner() {
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: #e74c3c;
+                color: white;
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                max-width: 300px;
+                animation: slideIn 0.5s ease;
+            `;
+
+            // Get the latest SOS alert message from localStorage
+            const sosAlerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+            let alertMessage = 'Heavy rainfall warning for your region'; // Default fallback
+
+            if (sosAlerts.length > 0) {
+                // Get the most recent SOS alert
+                const latestAlert = sosAlerts[sosAlerts.length - 1];
+                alertMessage = latestAlert.description || latestAlert.message || 'Emergency SOS alert received';
+            }
+
+            banner.innerHTML = `
+                <div style="font-weight: bold;">🚨 New Alert Received</div>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem;">${alertMessage}</div>
+                <button onclick="this.parentElement.remove()" style="margin-top: 0.5rem; background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">Dismiss</button>
+            `;
+
+            document.body.appendChild(banner);
+
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (banner.parentElement) {
+                    banner.remove();
+                }
+            }, 10000);
+        }
+
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Points management (inherited from main site)
+        function getPoints() {
+            return parseInt(localStorage.getItem('userPoints') || '0');
+        }
+
+        function updatePointsDisplay() {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.textContent = `Points: ${getPoints()}`;
+            }
+        }
+
+        // Initialize points display
+        updatePointsDisplay();
+
+        // Initialize interactive map
+        let map;
+        let markers = [];
+        let heatLayer;
+        let lastUpdateTime = Date.now();
+
+        function initMap() {
+            // Center on Gwalior, Madhya Pradesh, India
+            map = L.map('map').setView([26.2183, 78.1828], 10);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add real-time weather layer (simulated)
+            addWeatherLayer();
+
+            // Add initial markers for affected regions in Gwalior area
+            addInitialMarkers();
+
+            // Load SOS alerts from localStorage
+            loadSOSMarkers();
+
+            // Add live data updates
+            startLiveUpdates();
+
+            // Add map controls
+            addMapControls();
+
+            // Add click handler for map
+            map.on('click', function(e) {
+                const popup = L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(`<b>Location:</b> ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}<br><b>Status:</b> Monitoring active<br><button onclick="reportIncident(${e.latlng.lat}, ${e.latlng.lng})" class="alert-btn primary" style="margin-top: 5px;">Report Incident</button>`)
+                    .openOn(map);
+            });
+        }
+
+        function addWeatherLayer() {
+            // Simulate weather data points
+            const weatherPoints = [
+                [26.2183, 78.1828, 0.8], // Gwalior center - high activity
+                [26.2500, 78.1500, 0.6], // North area
+                [26.1800, 78.2000, 0.4], // South area
+                [26.2200, 78.2500, 0.7], // East area
+                [26.2000, 78.1500, 0.5]  // West area
+            ];
+
+            heatLayer = L.heatLayer(weatherPoints, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 10,
+                gradient: {
+                    0.2: 'green',
+                    0.4: 'yellow',
+                    0.6: 'orange',
+                    0.8: 'red'
+                }
+            }).addTo(map);
+        }
+
+        function addInitialMarkers() {
+            const affectedRegions = [
+                { lat: 26.2183, lng: 78.1828, name: 'Gwalior City Center', risk: 'high', description: 'Heavy rainfall expected in central Gwalior' },
+                { lat: 26.2500, lng: 78.1500, name: 'Morar Area', risk: 'medium', description: 'Flood watch in progress' },
+                { lat: 26.1800, lng: 78.2000, name: 'Lashkar Area', risk: 'low', description: 'Monitoring weather conditions' },
+                { lat: 26.2200, lng: 78.2500, name: 'Thatipur Area', risk: 'high', description: 'Heavy winds expected' },
+                { lat: 26.2000, lng: 78.1500, name: 'City Mall Area', risk: 'medium', description: 'Potential water logging' }
+            ];
+
+            affectedRegions.forEach(region => {
+                const markerColor = region.risk === 'high' ? 'red' : region.risk === 'medium' ? 'orange' : 'green';
+                const markerIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background-color: ${markerColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                const marker = L.marker([region.lat, region.lng], { icon: markerIcon }).addTo(map);
+                marker.bindPopup(`
+                    <div style="font-weight: bold; color: ${markerColor};">${region.name}</div>
+                    <div>Risk Level: ${region.risk.toUpperCase()}</div>
+                    <div style="margin-top: 5px;">${region.description}</div>
+                    <div style="margin-top: 5px; font-size: 0.8em; color: #666;">Last updated: ${new Date().toLocaleTimeString()}</div>
+                `);
+                markers.push(marker);
+            });
+        }
+
+        /**
+         * Loads SOS markers from localStorage and adds them to the map
+         * Includes validation and error handling for coordinates and data
+         */
+        function loadSOSMarkers() {
+            try {
+                const sosAlertsData = localStorage.getItem('sosAlerts');
+                if (!sosAlertsData) {
+                    console.log('No SOS alerts found in localStorage');
+                    return;
+                }
+
+                const sosAlerts = JSON.parse(sosAlertsData);
+                console.log('Loading SOS markers:', sosAlerts.length, 'alerts found');
+
+                // Track existing SOS marker IDs to prevent duplicates
+                const existingSOSIds = new Set();
+                markers.forEach(marker => {
+                    if (marker.sosAlertId) {
+                        existingSOSIds.add(marker.sosAlertId);
+                    }
+                });
+
+                let addedCount = 0;
+                let skippedCount = 0;
+
+                sosAlerts.forEach((alert, index) => {
+                    try {
+                        console.log(`Processing SOS alert ${index + 1}:`, alert);
+
+                        // Check for duplicate SOS alerts
+                        const alertId = alert.timestamp || alert.id || `alert_${index}`;
+                        if (existingSOSIds.has(alertId)) {
+                            console.log('Skipping duplicate SOS alert:', alertId);
+                            skippedCount++;
+                            return;
+                        }
+
+                        if (!alert.location) {
+                            console.warn('SOS alert missing location data:', alert);
+                            return;
+                        }
+
+                        // Parse lat,lng from alert.location string - improved regex
+                        const coordsMatch = alert.location.match(/(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/);
+                        console.log('Location string:', alert.location, 'Match result:', coordsMatch);
+
+                        if (!coordsMatch) {
+                            console.warn('Could not parse coordinates from location string:', alert.location);
+                            return;
+                        }
+
+                        const lat = parseFloat(coordsMatch[1]);
+                        const lng = parseFloat(coordsMatch[2]);
+
+                        console.log('Parsed coordinates:', lat, lng);
+
+                        // Validate coordinates are reasonable for Gwalior area and globally valid
+                        if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                            console.warn('Invalid coordinates for SOS alert:', lat, lng);
+                            return;
+                        }
+
+                        // Additional validation for Gwalior region (can be expanded)
+                        if (lat < 20 || lat > 30 || lng < 70 || lng > 85) {
+                            console.warn('Coordinates outside expected region for SOS alert:', lat, lng);
+                            // Still add the marker but log the warning
+                        }
+
+                        const sosIcon = L.divIcon({
+                            className: 'sos-marker',
+                            html: '<div style="background-color: orange; width: 25px; height: 25px; border-radius: 50%; border: 3px solid red; animation: pulse 1s infinite; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px;">SOS</div>',
+                            iconSize: [25, 25],
+                            iconAnchor: [12, 12]
+                        });
+
+                        const marker = L.marker([lat, lng], { icon: sosIcon }).addTo(map);
+                        const riskInfo = alert.riskZone ? `<div style="margin-top: 5px; font-weight: bold;">Risk Zone: ${alert.riskEmoji || ''} ${alert.riskZone}</div>` : '';
+                        const timestamp = alert.timestamp ? new Date(alert.timestamp).toLocaleString() : new Date().toLocaleString();
+
+                        marker.bindPopup(`
+                            <div style="font-weight: bold; color: red;">🚨 EMERGENCY SOS</div>
+                            <div><strong>Description:</strong> ${alert.description || alert.message || 'Emergency situation reported'}</div>
+                            <div><strong>From:</strong> ${alert.senderName || 'Unknown'} (${alert.senderRole || 'N/A'}, Class: ${alert.senderClass || 'N/A'})</div>
+                            ${riskInfo}
+                            <div style="margin-top: 5px; font-size: 0.8em; color: #666;">Time: ${timestamp}</div>
+                            <button onclick="respondToSOS(${lat}, ${lng})" class="alert-btn primary" style="margin-top: 5px;">Respond</button>
+                        `);
+
+                        // Add marker to global markers array for tracking
+                        marker.sosAlertId = alertId;
+                        markers.push(marker);
+                        addedCount++;
+
+                        console.log('SOS marker added to map at:', lat, lng);
+                    } catch (alertError) {
+                        console.error(`Error processing SOS alert ${index + 1}:`, alertError);
+                    }
+                });
+
+                console.log(`SOS markers loading complete. Added: ${addedCount}, Skipped: ${skippedCount}, Total markers: ${markers.length}`);
+            } catch (error) {
+                console.error('Error loading SOS markers from localStorage:', error);
+            }
+        }
+
+        function startLiveUpdates() {
+            // Update every 15 seconds for more real-time feel
+            setInterval(() => {
+                updateWeatherLayer();
+                updateMarkers();
+                checkForNewAlerts();
+                refreshSOSMarkers(); // Refresh SOS markers to show new alerts
+            }, 15000);
+        }
+
+        /**
+         * Refreshes SOS markers on the map by removing existing ones and reloading from localStorage
+         */
+        function refreshSOSMarkers() {
+            // Make function globally accessible for SOS button
+            window.refreshSOSMarkers = refreshSOSMarkers;
+            console.log('Refreshing SOS markers...');
+
+            try {
+                // Remove existing SOS markers more reliably
+                const markersToKeep = [];
+                let removedCount = 0;
+
+                markers.forEach(marker => {
+                    // Check if this is an SOS marker by checking the icon className
+                    if (marker.options && marker.options.icon && marker.options.icon.options) {
+                        const className = marker.options.icon.options.className;
+                        if (className && className.includes('sos-marker')) {
+                            console.log('Removing existing SOS marker');
+                            try {
+                                map.removeLayer(marker);
+                                removedCount++;
+                                return; // Don't add to markersToKeep
+                            } catch (error) {
+                                console.warn('Error removing SOS marker:', error);
+                            }
+                        }
+                    }
+                    // Keep non-SOS markers
+                    markersToKeep.push(marker);
+                });
+
+                // Update markers array with only non-SOS markers
+                markers = markersToKeep;
+
+                console.log(`Removed ${removedCount} SOS markers`);
+
+                // Reload SOS markers from localStorage
+                loadSOSMarkers();
+
+                console.log('SOS markers refreshed. Total markers now:', markers.length);
+            } catch (error) {
+                console.error('Error refreshing SOS markers:', error);
+            }
+        }
+
+        function updateWeatherLayer() {
+            if (heatLayer) {
+                map.removeLayer(heatLayer);
+            }
+
+            // Simulate changing weather patterns
+            const weatherPoints = [
+                [26.2183, 78.1828, Math.random() * 0.8 + 0.2], // Gwalior center
+                [26.2500, 78.1500, Math.random() * 0.6 + 0.2], // North area
+                [26.1800, 78.2000, Math.random() * 0.4 + 0.2], // South area
+                [26.2200, 78.2500, Math.random() * 0.7 + 0.2], // East area
+                [26.2000, 78.1500, Math.random() * 0.5 + 0.2]  // West area
+            ];
+
+            heatLayer = L.heatLayer(weatherPoints, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 10,
+                gradient: {
+                    0.2: 'green',
+                    0.4: 'yellow',
+                    0.6: 'orange',
+                    0.8: 'red'
+                }
+            }).addTo(map);
+        }
+
+        function updateMarkers() {
+            // Update marker popups with fresh timestamps
+            markers.forEach(marker => {
+                if (marker.getPopup()) {
+                    const content = marker.getPopup().getContent();
+                    if (content.includes('Last updated') || content.includes('Time:')) {
+                        // Update timestamp in popup
+                        marker.setPopupContent(content.replace(/Last updated: .*/, `Last updated: ${new Date().toLocaleTimeString()}`));
+                    }
+                }
+            });
+        }
+
+        function checkForNewAlerts() {
+            // Simulate new alerts appearing
+            if (Math.random() > 0.95) { // 5% chance every 15 seconds
+                const randomLat = 26.2183 + (Math.random() - 0.5) * 0.1;
+                const randomLng = 78.1828 + (Math.random() - 0.5) * 0.1;
+
+                const newAlertIcon = L.divIcon({
+                    className: 'new-alert-marker',
+                    html: '<div style="background-color: red; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; animation: blink 0.5s infinite;"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                const marker = L.marker([randomLat, randomLng], { icon: newAlertIcon }).addTo(map);
+                marker.bindPopup(`
+                    <div style="font-weight: bold; color: red;">🚨 NEW ALERT</div>
+                    <div>Emergency situation detected</div>
+                    <div style="margin-top: 5px; font-size: 0.8em; color: #666;">Detected: ${new Date().toLocaleTimeString()}</div>
+                `).openPopup();
+
+                markers.push(marker);
+
+                // Auto-remove after 2 minutes
+                setTimeout(() => {
+                    map.removeLayer(marker);
+                    const index = markers.indexOf(marker);
+                    if (index > -1) markers.splice(index, 1);
+                }, 120000);
+            }
+        }
+
+        function addMapControls() {
+            // Add layer control
+            const baseLayers = {
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                })
+            };
+
+            const overlays = {
+                "Weather Heatmap": heatLayer,
+                "Risk Markers": L.layerGroup(markers)
+            };
+
+            L.control.layers(baseLayers, overlays).addTo(map);
+
+            // Add scale control
+            L.control.scale().addTo(map);
+
+            // Add locate control (if available)
+            if (navigator.geolocation) {
+                L.control.locate().addTo(map);
+            }
+        }
+
+        function reportIncident(lat, lng) {
+            alert(`Incident reported at coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}\nEmergency services have been notified.`);
+        }
+
+        function respondToSOS(lat, lng) {
+            alert(`Response team dispatched to coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}\nETA: 10-15 minutes`);
+        }
+
+        // Firebase integration for real-time updates
+        let firebaseConfig = {
+            // Add your Firebase config here
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase (commented out until config is provided)
+        // firebase.initializeApp(firebaseConfig);
+        // const database = firebase.database();
+
+        // Function to listen for real-time alerts from Firebase
+        function listenForRealtimeAlerts() {
+            // Uncomment when Firebase is configured
+            /*
+            const alertsRef = database.ref('alerts');
+            alertsRef.on('child_added', (snapshot) => {
+                const alert = snapshot.val();
+                addRealtimeAlertToMap(alert);
+            });
+            */
+        }
+
+        function addRealtimeAlertToMap(alert) {
+            const alertIcon = L.divIcon({
+                className: 'realtime-alert-marker',
+                html: `<div style="background-color: ${alert.severity === 'high' ? 'red' : alert.severity === 'medium' ? 'orange' : 'yellow'}; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px;">!</div>`,
+                iconSize: [25, 25],
+                iconAnchor: [12, 12]
+            });
+
+            const marker = L.marker([alert.lat, alert.lng], { icon: alertIcon }).addTo(map);
+            marker.bindPopup(`
+                <div style="font-weight: bold; color: red;">🔴 REAL-TIME ALERT</div>
+                <div>${alert.title}</div>
+                <div style="margin-top: 5px;">${alert.description}</div>
+                <div style="margin-top: 5px; font-size: 0.8em; color: #666;">Severity: ${alert.severity} | ${new Date(alert.timestamp).toLocaleString()}</div>
+            `).openPopup();
+
+            markers.push(marker);
+        }
+
+        // Initialize map when page loads
+        initMap();
+
+        // Start listening for real-time alerts
+        listenForRealtimeAlerts();
+
+        // Function to start alert history updates
+        function startAlertHistoryUpdates() {
+            setInterval(() => {
+                updateAlertHistory();
+            }, 45000); // Update every 45 seconds (different from stats update)
+        }
+
+        // Function to update alert history with new items
+        function updateAlertHistory() {
+            // Add a new random alert to history occasionally
+            if (Math.random() > 0.7) { // 30% chance every 45 seconds
+                const newAlerts = [
+                    { icon: '🌧️', title: 'Weather Update', titleHi: 'मौसम अपडेट' },
+                    { icon: '⚡', title: 'Thunderstorm Warning', titleHi: 'गर्जना चेतावनी' },
+                    { icon: '🌪️', title: 'Wind Advisory', titleHi: 'हवा सलाह' },
+                    { icon: '🌊', title: 'Flood Alert', titleHi: 'बाढ़ अलर्ट' },
+                    { icon: '🔥', title: 'Fire Safety Check', titleHi: 'आग सुरक्षा जांच' },
+                    { icon: '🏫', title: 'School Evacuation Drill', titleHi: 'स्कूल निकासी अभ्यास' },
+                    { icon: '🚨', title: 'Emergency Broadcast', titleHi: 'आपातकालीन प्रसारण' },
+                    { icon: '📢', title: 'Public Announcement', titleHi: 'सार्वजनिक घोषणा' }
+                ];
+
+                const randomAlert = newAlerts[Math.floor(Math.random() * newAlerts.length)];
+
+                // Add new alert to the beginning of history
+                alertHistory.unshift({
+                    icon: randomAlert.icon,
+                    title: randomAlert.title,
+                    titleHi: randomAlert.titleHi,
+                    time: 'Just now',
+                    timeHi: 'अभी अभी'
+                });
+
+                // Keep only the last 8 items to prevent history from growing too large
+                if (alertHistory.length > 8) {
+                    alertHistory.pop();
+                }
+
+                // Reload the alert history display
+                loadAlertHistory();
+            } else {
+                // Update timestamps for existing alerts to make them appear more recent
+                alertHistory.forEach(item => {
+                    if (item.time !== 'Just now' && item.time !== 'अभी अभी') {
+                        // Update English timestamps
+                        if (item.time.includes('hour')) {
+                            const hours = parseInt(item.time.split(' ')[0]);
+                            item.time = `${hours + 1} hours ago`;
+                        } else if (item.time.includes('day')) {
+                            const days = parseInt(item.time.split(' ')[0]);
+                            item.time = `${days + 1} days ago`;
+                        }
+
+                        // Update Hindi timestamps
+                        if (item.timeHi.includes('घंटे')) {
+                            const hours = parseInt(item.timeHi.split(' ')[0]);
+                            item.timeHi = `${hours + 1} घंटे पहले`;
+                        } else if (item.timeHi.includes('दिन')) {
+                            const days = parseInt(item.timeHi.split(' ')[0]);
+                            item.timeHi = `${days + 1} दिन पहले`;
+                        }
+                    }
+                });
+
+                // Reload the alert history display
+                loadAlertHistory();
+            }
+        }
+    </script>
+<script src="sos-button.js"></script>
+</body>
+</html>

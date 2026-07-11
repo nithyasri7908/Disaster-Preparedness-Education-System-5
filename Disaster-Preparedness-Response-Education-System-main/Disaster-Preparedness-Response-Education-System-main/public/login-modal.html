@@ -1,0 +1,41 @@
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('loginModal')">&times;</span>
+        <h2>Collect Points</h2>
+        <form class="modal-form" id="pointsForm">
+            <div>
+                <label>Student Name:</label>
+                <input type="text" id="studentName" placeholder="Enter your name" required>
+            </div>
+            <div>
+                <label>Activity:</label>
+                <select id="activity">
+                    <option value="login">Daily Login</option>
+                    <option value="simulation">Completed Simulation</option>
+                    <option value="quiz">Passed Quiz</option>
+                    <option value="drill">Participated in Drill</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Collect Points</button>
+        </form>
+        <script>
+            document.getElementById('pointsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('studentName').value;
+                const activity = document.getElementById('activity').value;
+                const pointsAwarded = {
+                    login: 10,
+                    simulation: 50,
+                    quiz: 25,
+                    drill: 30
+                };
+                const points = pointsAwarded[activity];
+                alert(`Congratulations ${name}! You have earned ${points} points for ${activity.replace('_', ' ')}!`);
+                // Update points in localStorage
+                const currentPoints = getPoints();
+                setPoints(currentPoints + points);
+                closeModal('loginModal');
+            });
+        </script>
+    </div>
+</div>

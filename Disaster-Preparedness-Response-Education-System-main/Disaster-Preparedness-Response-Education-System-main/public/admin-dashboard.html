@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYy-iVDuFlEL_zQ-vy1DBsZNP4CWFSxNM",
+            authDomain: "disaster-preparedness-c0969.firebaseapp.com",
+            projectId: "disaster-preparedness-c0969",
+            storageBucket: "disaster-preparedness-c0969.firebasestorage.app",
+            messagingSenderId: "11672612134",
+            appId: "1:11672612134:web:0988dbfeea867e6d8725e7",
+            measurementId: "G-H9VKXNFQR4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.firestore();
+    </script>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 1rem 2rem;
+            margin: 0;
+        }
+        h1, h2 {
+            color: #00adb5;
+            margin-bottom: 1rem;
+        }
+        nav a {
+            color: #00adb5;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 10px #00adb5aa;
+        }
+        .charts-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .chart-container {
+            flex: 1 1 45%;
+            min-width: 300px;
+            background: #0f3460;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 0 8px #00adb5cc;
+        }
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 8px #00adb5cc;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #00adb5aa;
+            color: white;
+        }
+        th {
+            background: #16213e;
+            cursor: pointer;
+            user-select: none;
+        }
+        tr:hover {
+            background: #00adb533;
+        }
+        .export-buttons {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+        button {
+            background: #00adb5;
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background: #008f94;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-row {
+                flex-direction: column;
+            }
+            .chart-container {
+                flex: 1 1 100%;
+            }
+        }
+        /* Role-based view notice */
+        #roleNotice {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        /* Command Center Styles */
+        .cmd-center { display: flex; gap: 1rem; margin-bottom: 1rem; background: #16213e; padding: 1rem; border-radius: 10px; border: 2px solid #e74c3c; box-shadow: 0 0 15px rgba(231,76,60,0.5); }
+        .cmd-panel { flex: 1; background: #0f3460; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto; }
+        .cmd-panel.map-panel { flex: 2; overflow: hidden; padding: 0; min-height: 400px; }
+        #map-container {
+            position: relative;
+        }
+        .map-overlay-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+        }
+        .map-overlay-controls .clear-btn {
+            background: rgba(231,76,60,0.95);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .map-overlay-controls .clear-btn:hover {
+            background: #c0392b;
+        }
+        .sos-list-item { background: rgba(231,76,60,0.2); border-left: 4px solid #e74c3c; padding: 10px; margin-bottom: 10px; cursor: pointer; border-radius: 4px;}
+        .sos-list-item:hover { background: rgba(231,76,60,0.4); }
+        .circle-chart { width: 150px; height: 150px; border-radius: 50%; border: 15px solid #00adb5; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 2rem auto; position: relative; }
+        #dashboardMap { width: 100%; height: 100%; min-height: 400px; border-radius: 8px; }
+        .flashing-red-overlay { animation: flashRedOverlay 1s infinite alternate; }
+        @keyframes flashRedOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
+        .broadcast-sys { margin-bottom: 2rem; padding: 1.5rem; background: #0f3460; border-radius: 8px; border: 2px solid #f39c12; }
+    </style>
+</head>
+<body>
+    <div id="red-overlay" class="flashing-red-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(255,0,0,0.4); z-index:99999; pointer-events:none;"></div>
+    <nav>
+        <a href="index.html">&larr; Back to Home</a>
+    </nav>
+    <div class="dashboard-container">
+        <h1>Admin Dashboard - Disaster Preparedness & Compliance</h1>
+        <div id="roleNotice">You are viewing limited data as a Teacher.</div>
+
+        <section class="section" id="emergencyCommandCenter" style="border-color: #e74c3c; padding-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: #e74c3c; margin:0;">🚨 LIVE EMERGENCY COMMAND CENTER 🚨</h2>
+                <div style="display: flex; gap: 10px;">
+                    <audio id="sirenSound" src="alert.mp3" loop preload="auto" style="display:none;"></audio>
+                    <button id="enableAudioBtn" style="background:#2ecc71; color:white; padding:8px 15px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('sirenSound').play().then(()=>{document.getElementById('sirenSound').pause(); this.style.display='none';}).catch(e=>console.log(e));">🔊 Enable Audio Mode</button>
+                    <button id="stopAlarmBtn" class="btn" style="display: none; background: #e74c3c; color: white;">Stop Alarm</button>
+                </div>
+            </div>
+            <p style="margin-bottom:1rem; color:#aaa;">Real-time map and SOS monitoring.</p>
+            
+            <div class="cmd-center">
+                <!-- Left: List -->
+                <div class="cmd-panel" id="cmdSosList">
+                    <h3 style="margin-top:0;">Active SOS Signals</h3>
+                    <div id="cmdSosListContainer">Loading...</div>
+                </div>
+
+                <!-- Center: Stats -->
+                <div class="cmd-panel" style="text-align: center;">
+                    <h3 style="margin-top:0;">Live System Usage</h3>
+                    <div class="circle-chart">
+                        <div style="text-align:center;">
+                            <span id="activeSosCount">0</span>
+                            <div style="font-size: 14px; font-weight: normal; color:#aaa; margin-top: -5px;">Active SOS</div>
+                        </div>
+                    </div>
+                    <p style="margin-bottom:5px;">Total Registered Students</p>
+                    <h2 id="totalRegStudents" style="color: #00adb5; margin-top:0;">0</h2>
+                </div>
+
+                <!-- Right: Map -->
+                <div class="cmd-panel map-panel">
+                    <div id="map-container">
+                        <div class="map-overlay-controls">
+                            <button class="clear-btn" onclick="clearMapMarkers()">Clear Map Alerts</button>
+                        </div>
+                        <div id="dashboardMap"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast System -->
+            <div class="broadcast-sys">
+                <h3 style="margin-top:0; color:#f39c12;">📡 Public Emergency Broadcast System</h3>
+                <div style="display: flex; gap: 10px; margin-top:10px;">
+                    <select id="bcType" style="padding: 10px; border-radius: 5px; background:white;">
+                        <option value="Landslide Warning">Landslide Warning</option>
+                        <option value="Heavy Rain Warning">Heavy Rain Warning</option>
+                        <option value="Tsunami Alert">Tsunami Alert</option>
+                        <option value="Earthquake Alert">Earthquake Alert</option>
+                    </select>
+                    <input type="text" id="bcRange" placeholder="Target Area/Range (e.g. 5km radius of Gov City)" style="padding: 10px; border-radius: 5px; flex: 1; border:none;" />
+                    <button id="sendBroadcastBtn" style="background: #f39c12; color:#000; padding:10px 20px;">Send Broadcast Alert</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="preparednessSection">
+            <h2>Preparedness Scores</h2>
+            <div class="charts-row">
+                <div class="chart-container">
+                    <canvas id="avgScoreChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendScoreChart"></canvas>
+                </div>
+            </div>
+            <h3>Student-Level Breakdown</h3>
+            <table id="studentScoresTable">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Student Name</th>
+                        <th data-sort="score">Score</th>
+                        <th data-sort="level">Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section" id="drillParticipationSection">
+            <h2>Drill Participation</h2>
+            <div class="charts-row">
+                <div class="chart-container">
+                    <canvas id="completionPieChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Attendance & Frequency</h3>
+                    <table id="drillAttendanceTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="name">Participant</th>
+                                <th data-sort="attended">Attended</th>
+                                <th data-sort="frequency">Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="quizPerformanceSection">
+            <h2>Daily Quiz Leaderboard</h2>
+            <table id="quizLeaderboardTable">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Student Name</th>
+                        <th data-sort="score">Quiz Score</th>
+                        <th data-sort="xp">Total XP</th>
+                        <th data-sort="badges">Badges Unlocked</th>
+                        <th data-sort="time">Time Completed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section" id="alertStatisticsSection">
+            <h2>Alert Statistics</h2>
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h3>Total Alerts (Last 24 Hours)</h3>
+                    <div id="totalAlertsCount" style="font-size: 3rem; color: #00adb5; text-align: center;">0</div>
+                </div>
+                <div class="chart-container">
+                    <h3>Alerts by Risk Zone</h3>
+                    <canvas id="riskZoneChart"></canvas>
+                </div>
+            </div>
+            <h3>Recent Alerts</h3>
+            <table id="recentAlertsTable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Sender</th>
+                        <th>Location</th>
+                        <th>Risk Zone</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section" id="complianceReportsSection">
+            <h2>Compliance Reports</h2>
+            <button id="exportPDFBtn">Export Report as PDF</button>
+            <button id="exportCSVBtn">Export Report as CSV</button>
+            <pre id="complianceReportOutput" style="display:none; background:#0f3460; padding:1rem; border-radius:8px; overflow-x:auto; margin-top:1rem;"></pre>
+        </section>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- jsPDF and html2canvas for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script>
+        let preparednessScores = [];
+        let preparednessTrends = { labels: [], scores: [] };
+        let drillParticipation = { totalParticipants: 0, completed: 0, attendance: [] };
+
+        function updateLiveAnalyticsData() {
+            const users = JSON.parse(localStorage.getItem('dpres_users') || '[]');
+            const students = users.filter(u => u.role === 'Student');
+            const leaderboard = JSON.parse(localStorage.getItem('globalQuizLeaderboard') || '[]');
+            
+            // Generate Preparedness Scores (out of 100)
+            const uniqueStudentsMap = {};
+            leaderboard.forEach(l => {
+                const score100 = l.score * 10;
+                if(!uniqueStudentsMap[l.studentName] || uniqueStudentsMap[l.studentName].score < score100) {
+                   let lvl = 'Safety Rookie';
+                   if(l.totalXP >= 100) lvl = 'Safety Novice';
+                   if(l.totalXP >= 250) lvl = 'Safety Apprentice';
+                   if(l.totalXP >= 500) lvl = 'Safety Adept';
+                   if(l.totalXP >= 1000) lvl = 'Safety Expert';
+                   uniqueStudentsMap[l.studentName] = { name: l.studentName, score: score100, level: lvl };
+                }
+            });
+            preparednessScores = Object.values(uniqueStudentsMap);
+
+            // Generate Drill Participation
+            drillParticipation.totalParticipants = students.length; 
+            drillParticipation.attendance = students.map(s => {
+                const participated = leaderboard.some(l => l.studentName === s.name);
+                const freq = leaderboard.filter(l => l.studentName === s.name).length;
+                return { name: s.name, attended: participated, frequency: freq };
+            });
+            
+            // Ensure any guest runs outside registered students also appear
+            leaderboard.forEach(l => {
+                if(!drillParticipation.attendance.some(a => a.name === l.studentName)) {
+                    drillParticipation.totalParticipants++;
+                    drillParticipation.attendance.push({ name: l.studentName, attended: true, frequency: 1 });
+                }
+            });
+
+            drillParticipation.completed = drillParticipation.attendance.filter(a => a.attended).length;
+
+            // Generate Trend Graph
+            preparednessTrends = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Current'],
+                scores: [60, 65, 68, 75, 80, 0]
+            };
+            if(preparednessScores.length > 0) {
+                const avg = preparednessScores.reduce((acc, cur) => acc + cur.score, 0) / preparednessScores.length;
+                preparednessTrends.scores[5] = Math.round(avg);
+            } else {
+                preparednessTrends.scores[5] = 85; // Fallback demo
+                preparednessScores.push({name: 'No data yet', score: 0, level: 'N/A'});
+            }
+        }
+
+        // Role-based access simulation
+        const userRole = localStorage.getItem('userRole') || 'admin'; // 'admin' or 'teacher'
+
+        function showRoleNotice() {
+            const notice = document.getElementById('roleNotice');
+            if (userRole === 'teacher') {
+                notice.style.display = 'block';
+                // Hide some sections for teacher
+                document.getElementById('complianceReportsSection').style.display = 'none';
+            } else {
+                notice.style.display = 'none';
+            }
+        }
+
+        // Chart instances
+        let avgScoreChart, trendScoreChart, completionPieChart;
+
+        function createAvgScoreChart() {
+            if(avgScoreChart) avgScoreChart.destroy();
+            const ctx = document.getElementById('avgScoreChart').getContext('2d');
+            const validScores = preparednessScores.filter(s => s.name !== 'No data yet');
+            const avgScore = validScores.length > 0 ? validScores.reduce((acc, cur) => acc + cur.score, 0) / validScores.length : 0;
+            
+            avgScoreChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Average Score'],
+                    datasets: [{
+                        label: 'Average Preparedness Score',
+                        data: [avgScore],
+                        backgroundColor: '#00adb5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+
+        function createTrendScoreChart() {
+            if(trendScoreChart) trendScoreChart.destroy();
+            const ctx = document.getElementById('trendScoreChart').getContext('2d');
+            trendScoreChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: preparednessTrends.labels,
+                    datasets: [{
+                        label: 'Preparedness Score Trend',
+                        data: preparednessTrends.scores,
+                        borderColor: '#00adb5',
+                        backgroundColor: 'rgba(0,173,181,0.3)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+
+        function populateStudentScoresTable() {
+            const tbody = document.querySelector('#studentScoresTable tbody');
+            tbody.innerHTML = '';
+            preparednessScores.forEach(student => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.score}</td>
+                    <td>${student.level}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function createCompletionPieChart() {
+            if(completionPieChart) completionPieChart.destroy();
+            const ctx = document.getElementById('completionPieChart').getContext('2d');
+            const completed = drillParticipation.completed;
+            const notCompleted = Math.max(0, drillParticipation.totalParticipants - completed);
+            completionPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Completed', 'Not Completed'],
+                    datasets: [{
+                        data: [completed, notCompleted],
+                        backgroundColor: ['#00adb5', '#ff6b6b']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function populateDrillAttendanceTable() {
+            const tbody = document.querySelector('#drillAttendanceTable tbody');
+            tbody.innerHTML = '';
+            drillParticipation.attendance.forEach(participant => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${participant.name}</td>
+                    <td>${participant.attended ? 'Yes' : 'No'}</td>
+                    <td>${participant.frequency}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Sorting tables
+        function sortTable(tableId, colIndex, asc = true) {
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+
+            rows.sort((a, b) => {
+                const aText = a.cells[colIndex].textContent.trim();
+                const bText = b.cells[colIndex].textContent.trim();
+
+                if (!isNaN(aText) && !isNaN(bText)) {
+                    return asc ? aText - bText : bText - aText;
+                }
+                return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function addTableSorting() {
+            document.querySelectorAll('table thead th').forEach((th, index) => {
+                let asc = true;
+                th.addEventListener('click', () => {
+                    sortTable(th.closest('table').id, index, asc);
+                    asc = !asc;
+                });
+            });
+        }
+
+        function populateQuizTable() {
+            const tbody = document.querySelector('#quizLeaderboardTable tbody');
+            const data = JSON.parse(localStorage.getItem('globalQuizLeaderboard') || '[]');
+            
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:1.5rem;">No quiz results found yet.</td></tr>';
+                return;
+            }
+            
+            // Sort by score descending, then timestamp ascending
+            data.sort((a, b) => b.score - a.score || a.timestamp - b.timestamp);
+            
+            data.forEach((result, idx) => {
+                const tr = document.createElement('tr');
+                const rowContent = `
+                    <td>${result.studentName}</td>
+                    <td><b style="color:#00adb5;">${result.score}/10</b></td>
+                    <td>${result.totalXP} XP</td>
+                    <td>${result.badges} 🏅</td>
+                    <td>${new Date(result.timestamp).toLocaleTimeString()}</td>
+                `;
+                tr.innerHTML = rowContent;
+                if(idx === 0 && result.score >= 8) { tr.style.background = 'rgba(255, 215, 0, 0.1)'; }
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Export report as PDF
+        async function exportReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const container = document.querySelector('.dashboard-container');
+            await html2canvas(container).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                doc.save('admin-dashboard-report.pdf');
+            });
+        }
+
+        // Export report as CSV
+        function exportReportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Preparedness Scores
+            csvContent += "Preparedness Scores\n";
+            csvContent += "Student Name,Score,Level\n";
+            preparednessScores.forEach(s => {
+                csvContent += `${s.name},${s.score},${s.level}\n`;
+            });
+            csvContent += "\n";
+
+            // Drill Participation
+            csvContent += "Drill Participation\n";
+            csvContent += "Participant,Attended,Frequency\n";
+            drillParticipation.attendance.forEach(p => {
+                csvContent += `${p.name},${p.attended ? 'Yes' : 'No'},${p.frequency}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "admin-dashboard-report.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize dashboard
+        function initDashboard() {
+            showRoleNotice();
+            updateLiveAnalyticsData();
+
+            createAvgScoreChart();
+            createTrendScoreChart();
+            populateStudentScoresTable();
+            createCompletionPieChart();
+            populateDrillAttendanceTable();
+            populateQuizTable();
+            addTableSorting();
+
+            document.getElementById('exportPDFBtn').addEventListener('click', exportReportPDF);
+            document.getElementById('exportCSVBtn').addEventListener('click', exportReportCSV);
+            
+            // Auto refresh stats every 30s so user does not need to reload to see live scores
+            setInterval(() => {
+                updateLiveAnalyticsData();
+                createAvgScoreChart();
+                createTrendScoreChart();
+                populateStudentScoresTable();
+                createCompletionPieChart();
+                populateDrillAttendanceTable();
+                populateQuizTable();
+            }, 30000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // Alert Statistics Implementation
+        function loadAlertStatistics() {
+            const alerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+            const now = new Date();
+            const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+            // Filter alerts from last 24 hours
+            const recentAlerts = alerts.filter(alert => {
+                const alertTime = new Date(alert.timestamp);
+                return alertTime >= oneDayAgo && alertTime <= now;
+            });
+
+            // Update total alerts count
+            document.getElementById('totalAlertsCount').textContent = recentAlerts.length;
+
+            // Aggregate alerts by risk zone
+            const riskZoneCounts = { 'High Risk': 0, 'Medium Risk': 0, 'Low Risk': 0, 'SOS Emergency': 0 };
+            recentAlerts.forEach(alert => {
+                if (alert.riskZone && riskZoneCounts.hasOwnProperty(alert.riskZone)) {
+                    riskZoneCounts[alert.riskZone]++;
+                }
+            });
+
+            // Prepare data for risk zone chart
+            const riskZoneLabels = Object.keys(riskZoneCounts);
+            const riskZoneData = Object.values(riskZoneCounts);
+
+            // Create or update risk zone chart
+            if (window.riskZoneChartInstance) {
+                window.riskZoneChartInstance.data.labels = riskZoneLabels;
+                window.riskZoneChartInstance.data.datasets[0].data = riskZoneData;
+                window.riskZoneChartInstance.update();
+            } else {
+                const ctx = document.getElementById('riskZoneChart').getContext('2d');
+                window.riskZoneChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: riskZoneLabels,
+                        datasets: [{
+                            label: 'Number of Alerts',
+                            data: riskZoneData,
+                            backgroundColor: ['red', 'orange', 'green', 'darkorange']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, precision: 0 }
+                        }
+                    }
+                });
+            }
+
+            // Populate recent alerts table
+            const tbody = document.querySelector('#recentAlertsTable tbody');
+            tbody.innerHTML = '';
+            recentAlerts.forEach(alert => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(alert.timestamp).toLocaleString()}</td>
+                    <td>${alert.senderName}</td>
+                    <td>${alert.location}</td>
+                    <td>${alert.riskEmoji ? alert.riskEmoji + ' ' : ''}${alert.riskZone || 'N/A'}</td>
+                    <td>${alert.description}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Refresh alert statistics every 5 minutes
+        setInterval(loadAlertStatistics, 5 * 60 * 1000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadAlertStatistics);
+
+        // ==========================================
+        // COMMAND CENTER LOGIC
+        // ==========================================
+        let map;
+        let markersLayer;
+        let lastCommandAlertCount = parseInt(sessionStorage.getItem('dashboardLastCommandAlertCount') || '-1', 10);
+        let lastCommandAlertIds = JSON.parse(sessionStorage.getItem('dashboardLastCommandAlertIds') || '[]');
+        let lastCommandAlertTimestamp = parseInt(sessionStorage.getItem('dashboardLastCommandAlertTimestamp') || '0', 10) || 0;
+        let flashingTimeout = null;
+        let lastAlertDataHash = '';
+        let mapMarkersCleared = sessionStorage.getItem('dashboardMarkersCleared') === 'true';
+        let mapMarkersClearedAt = parseInt(sessionStorage.getItem('dashboardMarkersClearedAt') || '0', 10) || 0;
+
+        function initCommandCenter() {
+            // Setup stats
+            const users = JSON.parse(localStorage.getItem('dpres_users') || '[]');
+            const studentCount = users.filter(u => u.role === 'Student').length;
+            document.getElementById('totalRegStudents').textContent = studentCount || 1; // Show at least 1 for display test if 0
+
+            // Init map
+            map = L.map('dashboardMap').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+            markersLayer = L.layerGroup().addTo(map);
+
+            window.clearMapMarkers = function() {
+                if (markersLayer) {
+                    markersLayer.clearLayers();
+                    mapMarkersCleared = true;
+                    mapMarkersClearedAt = Date.now();
+                    sessionStorage.setItem('dashboardMarkersCleared', 'true');
+                    sessionStorage.setItem('dashboardMarkersClearedAt', mapMarkersClearedAt.toString());
+                }
+            };
+
+            if(window.db && window.firebase) {
+                try {
+                window.db.collection("live_sos_signals").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                    const freshAlerts = [];
+                    const storedAlerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+                    const ackMap = {};
+                    storedAlerts.forEach(alert => {
+                        if (alert.id && alert.acknowledged) {
+                            ackMap[alert.id] = true;
+                        }
+                    });
+                    snapshot.forEach(doc => {
+                        let data = doc.data();
+                        data.id = doc.id;
+                        if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+                            data.timestamp = data.timestamp.toDate().toISOString();
+                        } else if (data.timestamp && data.timestamp.seconds) {
+                            data.timestamp = new Date(data.timestamp.seconds * 1000).toISOString();
+                        }
+                        if (ackMap[data.id]) {
+                            data.acknowledged = true;
+                        }
+                        freshAlerts.push(data);
+                    });
+                    // Store as string exactly how local fallback expected to reuse rendering logic completely
+                    localStorage.setItem('sosAlerts', JSON.stringify(freshAlerts));
+                    refreshCommandCenter();
+                });
+                } catch (e) {
+                    console.log('Firebase onSnapshot failed, falling back:', e);
+                    refreshCommandCenter();
+                    setInterval(refreshCommandCenter, 3000);
+                }
+            } else {
+                refreshCommandCenter();
+                setInterval(refreshCommandCenter, 3000);
+            }
+
+            // Broadcast Sender
+            document.getElementById('sendBroadcastBtn').addEventListener('click', () => {
+                const type = document.getElementById('bcType').value;
+                const range = document.getElementById('bcRange').value.trim() || 'All areas';
+                const bc = { type, range, timestamp: new Date().toISOString() };
+                const broadcasts = JSON.parse(localStorage.getItem('broadcastAlerts') || '[]');
+                broadcasts.push(bc);
+                localStorage.setItem('broadcastAlerts', JSON.stringify(broadcasts));
+                alert(`Broadcast Sent: ${type} globally to ${range}`);
+                document.getElementById('bcRange').value = '';
+            });
+
+            // Stop alarm
+            document.getElementById('stopAlarmBtn').addEventListener('click', stopFlashing);
+        }
+
+        function startSiren() {
+            const sirenAudio = document.getElementById('sirenSound');
+            if (sirenAudio) {
+                const playPromise = sirenAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.log('Audio autoplay blocked:', e);
+                        // Show massive fallback button if browser blocks audio
+                        let forceBtn = document.getElementById('forcePlayBtn');
+                        if (!forceBtn) {
+                            forceBtn = document.createElement('button');
+                            forceBtn.id = 'forcePlayBtn';
+                            forceBtn.innerHTML = "🚨 SOUND BLOCKED! CLICK TO PLAY ALARM 🚨";
+                            forceBtn.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:999999; padding:30px; font-size:24px; background:red; color:white; border:5px solid white; cursor:pointer; font-weight:bold; box-shadow:0 0 20px black; border-radius:10px;";
+                            forceBtn.onclick = () => { sirenAudio.play(); forceBtn.remove(); document.getElementById('enableAudioBtn').style.display='none'; };
+                            document.body.appendChild(forceBtn);
+                        }
+                    });
+                }
+            }
+        }
+
+        function stopSiren() {
+            const sirenAudio = document.getElementById('sirenSound');
+            if (sirenAudio) {
+                sirenAudio.pause();
+                sirenAudio.currentTime = 0;
+            }
+            const forceBtn = document.getElementById('forcePlayBtn');
+            if (forceBtn) forceBtn.remove();
+        }
+
+        function startFlashing() {
+            document.getElementById('red-overlay').style.display = 'block';
+            document.getElementById('stopAlarmBtn').style.display = 'block';
+            startSiren();
+
+            // Stop after 10 mins (600000 ms) automatically
+            if(flashingTimeout) clearTimeout(flashingTimeout);
+            flashingTimeout = setTimeout(stopFlashing, 600000);
+        }
+
+        function stopFlashing() {
+            document.getElementById('red-overlay').style.display = 'none';
+            document.getElementById('stopAlarmBtn').style.display = 'none';
+            stopSiren();
+            if(flashingTimeout) clearTimeout(flashingTimeout);
+        }
+
+        function refreshCommandCenter() {
+            try {
+                const listContainer = document.getElementById('cmdSosListContainer');
+                let alertsStr = localStorage.getItem('sosAlerts') || '[]';
+                
+                // Fallback for corrupted localstorage
+                if(alertsStr.indexOf('[object Object]') !== -1) {
+                    alertsStr = '[]';
+                    localStorage.setItem('sosAlerts', '[]');
+                }
+                
+                // Optimization: Prevent destroying active map popups if no data changed
+                if (alertsStr === lastAlertDataHash && alertsStr !== '[]') return;
+                lastAlertDataHash = alertsStr;
+
+                const alerts = JSON.parse(alertsStr);
+                
+                if (mapMarkersCleared && mapMarkersClearedAt > 0) {
+                    const newAlertSinceClear = alerts.some(alert => {
+                        const ts = alert.timestamp ? new Date(alert.timestamp).getTime() : 0;
+                        return ts > mapMarkersClearedAt;
+                    });
+                    if (newAlertSinceClear) {
+                        mapMarkersCleared = false;
+                        sessionStorage.removeItem('dashboardMarkersCleared');
+                        sessionStorage.removeItem('dashboardMarkersClearedAt');
+                    }
+                }
+
+                // Active count
+                const activeAlerts = alerts.filter(a => !a.acknowledged);
+                document.getElementById('activeSosCount').textContent = activeAlerts.length;
+
+                const currentAlertIds = alerts.map(a => a.id).filter(Boolean);
+                const currentAlertTimestamp = alerts.reduce((latest, alert) => {
+                    const ts = alert.timestamp ? new Date(alert.timestamp).getTime() : 0;
+                    return !isNaN(ts) && ts > latest ? ts : latest;
+                }, 0);
+
+                let shouldSoundAlarm = false;
+                if (lastCommandAlertCount !== -1) {
+                    const addedIds = currentAlertIds.filter(id => !lastCommandAlertIds.includes(id));
+                    if (addedIds.length > 0) {
+                        shouldSoundAlarm = true;
+                    } else if (alerts.length > lastCommandAlertCount && currentAlertTimestamp > lastCommandAlertTimestamp) {
+                        shouldSoundAlarm = true;
+                    }
+                }
+
+                if (shouldSoundAlarm) {
+                    startFlashing();
+                    try {
+                        const newestAlert = alerts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+                        if (newestAlert && !newestAlert.acknowledged) {
+                            const speech = new SpeechSynthesisUtterance();
+                            speech.text = `Emergency SOS received from student ${newestAlert.senderName || 'unknown'}. Location is ${newestAlert.location}. Risk zone is ${newestAlert.riskZone || 'high risk'}.`;
+                            speech.lang = 'en-IN';
+                            speech.volume = 1;
+                            speech.rate = 0.9;
+                            window.speechSynthesis.speak(speech);
+                        }
+                    } catch(e) { console.error('Speech synthesis error:', e); }
+                }
+
+                lastCommandAlertCount = alerts.length;
+                lastCommandAlertIds = currentAlertIds;
+                lastCommandAlertTimestamp = currentAlertTimestamp;
+                sessionStorage.setItem('dashboardLastCommandAlertCount', lastCommandAlertCount.toString());
+                sessionStorage.setItem('dashboardLastCommandAlertIds', JSON.stringify(lastCommandAlertIds));
+                sessionStorage.setItem('dashboardLastCommandAlertTimestamp', lastCommandAlertTimestamp.toString());
+
+                if (alerts.length === 0) {
+                    listContainer.innerHTML = '<p style="padding:10px;">No active signals.</p>';
+                } else {
+                    listContainer.innerHTML = '';
+                    markersLayer.clearLayers();
+                    let bounds = [];
+
+                    // Sort newest first
+                    window.setTimeout(() => { if (map) map.invalidateSize(); }, 500); // safety rescale
+
+                    alerts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(alert => {
+                        const isAck = alert.acknowledged;
+                        
+                        let pLat = alert.lat;
+                        let pLng = alert.lng;
+                        if(pLat === undefined && alert.location && typeof alert.location === 'string' && alert.location.includes(',')) {
+                             const parts = alert.location.split(',');
+                             pLat = parseFloat(parts[0].trim());
+                             pLng = parseFloat(parts[1].trim());
+                        }
+
+                        // List Item
+                        const div = document.createElement('div');
+                        div.className = 'sos-list-item';
+                        div.innerHTML = `
+                            <b>${alert.senderName || alert.senderEmail || 'Unknown User'}</b> ${isAck ? '✅' : '🔴'}<br>
+                            <small>Ph: ${alert.senderPhone || 'N/A'}</small><br>
+                            <small>Loc: ${alert.location || 'N/A'}</small>
+                        `;
+                        div.onclick = () => {
+                            if(pLat && pLng && !isNaN(pLat)) map.setView([pLat, pLng], 15);
+                        };
+                        listContainer.appendChild(div);
+
+                    if (!mapMarkersCleared && pLat && pLng && !isNaN(pLat)) {
+                        const iconColor = isAck ? 'green' : 'red';
+                        const svgIcon = L.divIcon({
+                            className: 'custom-div-icon',
+                            html: `<div style="background-color:${iconColor}; width:20px; height:20px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px black;"></div>`,
+                            iconSize: [20, 20]
+                        });
+                        const marker = L.marker([pLat, pLng], {icon: svgIcon}).addTo(markersLayer);
+
+                        let audioHTML = alert.audioDataUrl
+                            ? `<audio controls src="${alert.audioDataUrl}" style="width:100%; margin-top:5px; height:30px;"></audio>`
+                            : `<span style="color:#777; font-size:11px;">No Audio Sent</span>`;
+
+                        const popupHTML = `
+                            <div style="min-width: 220px; color:#333;">
+                                <h3 style="margin:0 0 5px 0;">${alert.senderName}</h3>
+                                <b>Time:</b> ${new Date(alert.timestamp).toLocaleTimeString()}<br/>
+                                <b>Loc:</b> ${alert.location}<br/>
+                                <b>Email:</b> ${alert.senderEmail}<br/>
+                                <b>Phone:</b> ${alert.senderPhone}<br/>
+                                ${audioHTML}
+                                <div style="margin-top: 10px; display:flex; gap:5px;">
+                                    <button onclick="parentSMS('${alert.id}')" style="background:#3498db; padding:5px; font-size:12px; flex:1; border:none; color:white; border-radius:3px;">Parent Info</button>
+                                    ${!isAck ? `<button onclick="confirmSOS('${alert.id}')" style="background:#2ecc71; padding:5px; font-size:12px; flex:1; border:none; color:white; border-radius:3px;">Confirm</button>` : `<b style="color:green; flex:1; text-align:center;">Acknowledged</b>`}
+                                </div>
+                            </div>
+                        `;
+                        marker.bindPopup(popupHTML);
+                        bounds.push([pLat, pLng]);
+                    }
+                });
+                
+                if (bounds.length > 0) {
+                    map.fitBounds(bounds, {maxZoom: 16});
+                }
+
+                }
+            } catch(e) {
+                console.error("Dashboard Render Failed:", e);
+                document.getElementById('cmdSosListContainer').innerHTML = "<b style='color:red;'>Dashboard Error. Please clear browser storage.</b>";
+            }
+        }
+
+        window.parentSMS = function(id) {
+            const alerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+            const alert = alerts.find(a => a.id === id);
+            if(alert) {
+                window.alert(`Parent Info:\n${alert.senderParentDetails}\n\n[SIMULATION] Dispatching SMS to Parents... SMS Sent.`);
+            }
+        }
+
+        window.confirmSOS = function(id) {
+            const alerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+            const alertObj = alerts.find(a => a.id === id);
+            
+            if(window.db) {
+                try {
+                    window.db.collection('live_sos_signals').doc(id).update({ acknowledged: true })
+                        .catch(() => {
+                            window.db.collection('live_sos_signals').where('id', '==', id).get().then(snapshot => {
+                                if (!snapshot.empty) {
+                                    snapshot.docs[0].ref.update({ acknowledged: true });
+                                }
+                            }).catch(e => console.log('Firebase fallback update failed:', e));
+                        });
+                } catch(e) { console.log('Firebase update failed:', e); }
+            }
+
+            if(alertObj) {
+                alertObj.acknowledged = true;
+                localStorage.setItem('sosAlerts', JSON.stringify(alerts));
+                refreshCommandCenter();
+                stopFlashing();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCommandCenter);
+    </script>
+</body>
+</html>

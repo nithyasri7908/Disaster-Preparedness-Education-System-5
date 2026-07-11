@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Emergency Contacts - DPRES</title>
+    <link rel="stylesheet" href="main.css" />
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            margin: 0;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        nav a {
+            color: #4ecdc4;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        #searchInput {
+            padding: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .export-buttons {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        button {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background: #45b7aa;
+        }
+        .contacts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .contact-category {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .category-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #4ecdc4;
+            padding-bottom: 0.5rem;
+        }
+        .contact-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4ecdc4;
+        }
+        .contact-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .contact-detail {
+            margin: 0.25rem 0;
+            color: #555;
+        }
+        .contact-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+        .phone-link {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .phone-link:hover {
+            color: #218838;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .contacts-container {
+                grid-template-columns: 1fr;
+            }
+            .export-buttons button {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">&larr; Back to Home</a>
+    </nav>
+    <h1>Emergency Contacts Directory</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search contacts...">
+    </div>
+
+    <div class="export-buttons">
+        <button id="exportPDFBtn">Export as PDF</button>
+        <button id="exportCSVBtn">Export as CSV</button>
+    </div>
+
+    <div class="contacts-container" id="contactsContainer">
+        <!-- Local Emergency Services -->
+        <div class="contact-category" data-category="local-emergency">
+            <div class="category-title">🚨 Local Emergency Services - Gwalior</div>
+            <div class="contact-item">
+                <div class="contact-name">Police Department</div>
+                <div class="contact-detail">📞 <a href="tel:07512222222" class="phone-link">0751-2222222</a></div>
+                <div class="contact-detail">📧 <a href="mailto:police@gwalior.gov.in" class="contact-link">police@gwalior.gov.in</a></div>
+                <div class="contact-detail">📍 Gwalior Police Headquarters, Gwalior</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">Fire Department</div>
+                <div class="contact-detail">📞 <a href="tel:07512223333" class="phone-link">0751-2223333</a></div>
+                <div class="contact-detail">📧 <a href="mailto:fire@gwalior.gov.in" class="contact-link">fire@gwalior.gov.in</a></div>
+                <div class="contact-detail">📍 Gwalior Fire Station, Gwalior</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">Ambulance Service</div>
+                <div class="contact-detail">📞 <a href="tel:108" class="phone-link">108</a></div>
+                <div class="contact-detail">📧 <a href="mailto:ambulance@gwalior.gov.in" class="contact-link">ambulance@gwalior.gov.in</a></div>
+                <div class="contact-detail">📍 Gwalior District Hospital, Emergency Wing</div>
+            </div>
+        </div>
+
+        <!-- Disaster Response Teams -->
+        <div class="contact-category" data-category="disaster-response">
+            <div class="category-title">🌊 Disaster Response Teams</div>
+            <div class="contact-item">
+                <div class="contact-name">Red Cross Society</div>
+                <div class="contact-detail">📞 <a href="tel:+91-22-2202-0001" class="phone-link">+91-22-2202-0001</a></div>
+                <div class="contact-detail">📧 <a href="mailto:info@redcross.org" class="contact-link">info@redcross.org</a></div>
+                <div class="contact-detail">📍 Red Cross Building, Downtown</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">Civil Defense</div>
+                <div class="contact-detail">📞 <a href="tel:+91-22-2202-0002" class="phone-link">+91-22-2202-0002</a></div>
+                <div class="contact-detail">📧 <a href="mailto:defense@state.gov" class="contact-link">defense@state.gov</a></div>
+                <div class="contact-detail">📍 Civil Defense HQ, Government Complex</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">Disaster Relief Hotline</div>
+                <div class="contact-detail">📞 <a href="tel:1078" class="phone-link">1078</a></div>
+                <div class="contact-detail">📧 <a href="mailto:relief@ndma.gov.in" class="contact-link">relief@ndma.gov.in</a></div>
+                <div class="contact-detail">📍 NDMA Control Room, New Delhi</div>
+            </div>
+        </div>
+
+        <!-- School Emergency Contacts -->
+        <div class="contact-category" data-category="school-emergency">
+            <div class="category-title">🏫 School Emergency Contacts</div>
+            <div class="contact-item">
+                <div class="contact-name">School Principal</div>
+                <div class="contact-detail">📞 <a href="tel:+91-98765-43210" class="phone-link">+91-98765-43210</a></div>
+                <div class="contact-detail">📧 <a href="mailto:principal@school.edu" class="contact-link">principal@school.edu</a></div>
+                <div class="contact-detail">📍 Principal's Office, School Building</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">Safety Officer</div>
+                <div class="contact-detail">📞 <a href="tel:+91-98765-43211" class="phone-link">+91-98765-43211</a></div>
+                <div class="contact-detail">📧 <a href="mailto:safety@school.edu" class="contact-link">safety@school.edu</a></div>
+                <div class="contact-detail">📍 Safety Office, Ground Floor</div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-name">School Nurse</div>
+                <div class="contact-detail">📞 <a href="tel:+91-98765-43212" class="phone-link">+91-98765-43212</a></div>
+                <div class="contact-detail">📧 <a href="mailto:nurse@school.edu" class="contact-link">nurse@school.edu</a></div>
+                <div class="contact-detail">📍 Medical Room, First Floor</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const contactsContainer = document.getElementById('contactsContainer');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const contactItems = document.querySelectorAll('.contact-item');
+
+            contactItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Export as PDF
+        document.getElementById('exportPDFBtn').addEventListener('click', async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            await html2canvas(contactsContainer).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                doc.save('emergency-contacts.pdf');
+            });
+        });
+
+        // Export as CSV
+        document.getElementById('exportCSVBtn').addEventListener('click', function() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Category,Name,Phone,Email,Address\n";
+
+            const contactItems = document.querySelectorAll('.contact-item');
+            contactItems.forEach(item => {
+                const category = item.closest('.contact-category').querySelector('.category-title').textContent.replace('🚨 ', '').replace('🌊 ', '').replace('🏫 ', '');
+                const name = item.querySelector('.contact-name').textContent;
+                const phone = item.querySelector('.phone-link') ? item.querySelector('.phone-link').textContent : '';
+                const email = item.querySelector('.contact-link') ? item.querySelector('.contact-link').textContent : '';
+                const address = item.querySelectorAll('.contact-detail')[2] ? item.querySelectorAll('.contact-detail')[2].textContent.replace('📍 ', '') : '';
+
+                csvContent += `"${category}","${name}","${phone}","${email}","${address}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "emergency-contacts.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Click-to-call for mobile
+        function handlePhoneLinks() {
+            const phoneLinks = document.querySelectorAll('.phone-link');
+            phoneLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+                        e.preventDefault();
+                        alert(`Call ${this.textContent} for emergency assistance.`);
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', handlePhoneLinks);
+    </script>
+</body>
+</html>
